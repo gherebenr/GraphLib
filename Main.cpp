@@ -698,7 +698,7 @@ void consoleInput()
         int count = 0;
         std::string userInput = "";
         std::string token = "";
-        std::cout << "\nCommands: n - next 3D shape, p - prev 3D shape, t - translate, r - rotate, s - scale, z - zoom to fit, half-tone - toggle half tone mode, wire - toggle wireframe mode, light - move light source, iA - change ambient light intensity, iL - change light source intensity, K - change K, phong - change Phong constant, kA - change Ambient constant, kD - change diffuse constant, kS - change specular constant, q - quit." << std::endl;
+        std::cout << "\nCommands:\nn     - next 3D shape\np     - prev 3D shape\nt     - translate\nr     - rotate\ns     - scale\nz     - zoom to fit\nht    - toggle half-tone mode\nwire  - toggle wireframe mode\nlight - move light source\niA    - change ambient light intensity\niL    - change light source intensity\nK     - change K\nphong - change Phong constant\nkA    - change Ambient constant\nkD    - change diffuse constant\nkS    - change specular constant\nq     - quit." << std::endl;
         std::cout << "Enter command:" << std::endl;
         std::cin >> userInput;
         if(userInput == "s")
@@ -774,7 +774,7 @@ void consoleInput()
             CPixelBuffer::instance(yzWindow)->changeZoom();
             CPixelBuffer::instance(zxWindow)->changeZoom();
         }
-        else if (userInput == "half-tone")
+        else if (userInput == "ht")
         {
             CGraphLib::toggleHalfTone();
         }
