@@ -134,7 +134,7 @@ struct STriangle
     SVertex xyProj[3];
     SVertex yzProj[3];
     SVertex zxProj[3];
-
+    CColor currentColor;
     CColor defaultColor;
 };
 

@@ -288,9 +288,9 @@ void CGraphLib::calculateTriangleLight(STriangle& triangle,SPoint viewPoint)
         K = (lightSource - p).length();
         float denom = 1 / ((viewPoint - p).length() + K);
         float ratio = ambient + (temp1 + temp2) * iL * denom;
-        triangle.vertices[i].vColor.setR(triangle.defaultColor.getR() * ratio);
-        triangle.vertices[i].vColor.setG(triangle.defaultColor.getG() * ratio);
-        triangle.vertices[i].vColor.setB(triangle.defaultColor.getB() * ratio);
+        triangle.vertices[i].vColor.setR(triangle.currentColor.getR() * ratio);
+        triangle.vertices[i].vColor.setG(triangle.currentColor.getG() * ratio);
+        triangle.vertices[i].vColor.setB(triangle.currentColor.getB() * ratio);
     }
 }
 
