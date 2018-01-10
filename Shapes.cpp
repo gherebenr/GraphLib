@@ -341,14 +341,14 @@ void CShapes::drawShape3DXY(SShape& shape, bool active, bool wire, int xyWindow)
         {
             for(STriangle &triangle : shape.triangles)
             {
-                triangle.defaultColor = CColor::customColor(0,1,0);
+                triangle.defaultColor = CColor(0,1,0);
             }
         }
         else
         {
             for(STriangle &triangle : shape.triangles)
             {
-                triangle.defaultColor = CColor::customColor(0.6,0.5,0.4);
+                triangle.defaultColor = CColor(0.6,0.5,0.4);
             }
         }
     }

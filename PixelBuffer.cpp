@@ -94,7 +94,7 @@ void CPixelBuffer::resetPixelBuffer(CColor color)
             }
             else
             {
-                setPixelColor(x,y,CColor::customColor(0,0,0), false);
+                setPixelColor(x,y,CColor(0,0,0), false);
             }
         }
     }

@@ -330,7 +330,7 @@ void CGraphLib::drawPoint3D(float x, float y, CColor color, int pixelBufferIndex
             }
             else
             {
-                virtPixCol[i] = CColor::customColor(0,0,0);
+                virtPixCol[i] = CColor(0,0,0);
             }
         }
         drawPoint2D(x, y, virtPixCol[0], pixelBufferIndex);

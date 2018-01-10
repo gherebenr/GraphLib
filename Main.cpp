@@ -667,7 +667,7 @@ void display3DXY()
         SVertex endv;
         endv.x = rotEndPt.x*zoomMult;
         endv.y = rotEndPt.y*zoomMult;
-        CGraphLib::drawLineB2D(startv, endv,  CColor::customColor(1,0,0), xyWindow);
+        CGraphLib::drawLineB2D(startv, endv,  CColor(1,0,0), xyWindow);
     }
 
     glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(xyWindow)->getPixelBuffer());
@@ -691,7 +691,7 @@ void display3DYZ()
         SVertex endv;
         endv.x = rotEndPt.x*zoomMult;
         endv.y = rotEndPt.y*zoomMult;
-        CGraphLib::drawLineB2D(startv, endv, CColor::customColor(1,0,0), yzWindow);
+        CGraphLib::drawLineB2D(startv, endv, CColor(1,0,0), yzWindow);
     }
 
     glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(yzWindow)->getPixelBuffer());
@@ -717,7 +717,7 @@ void display3DZX()
         SVertex endv;
         endv.x = rotEndPt.x*zoomMult;
         endv.y = rotEndPt.y*zoomMult;
-        CGraphLib::drawLineB2D(startv, endv, CColor::customColor(1,0,0), zxWindow);
+        CGraphLib::drawLineB2D(startv, endv, CColor(1,0,0), zxWindow);
     }
 
     glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(zxWindow)->getPixelBuffer());

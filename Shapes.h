@@ -140,8 +140,8 @@ struct STriangle
 
 struct SShape
 {
-    int k = 2;
-    bool bezier = true;
+    int k;
+    bool bezier;
     std::vector<SVertex> vertices;
     std::vector<float> knots;
     std::vector<SEdge> edges;

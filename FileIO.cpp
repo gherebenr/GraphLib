@@ -4,6 +4,7 @@
 #include <fstream>
 #include <ctime>
 
+// Function to load the file needed for the selected mode.
 void CFileIO::loadFile(bool _3Dmode, bool curveMode)
 {
     if(!_3Dmode)
@@ -130,7 +131,7 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                     float g = ((rand() * time(NULL)) % 1000)/1000.f;
                     srand(time(NULL) * rand() * time(NULL));
                     float b = ((rand() * time(NULL)) % 1000)/1000.f;
-                    CColor color = CColor::customColor(r,g,b);
+                    CColor color = CColor(r,g,b);
                     inputFile >> line;
                     numVertices = std::stoi(line);
                     std::cout << line << std::endl;
