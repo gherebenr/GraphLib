@@ -654,7 +654,7 @@ void display3DXY()
     glLoadIdentity();
 
     CPixelBuffer::instance(xyWindow)->resetPixelBuffer(backgroundColor);
-    CShapes::instance()->drawAllShapes3DXY(xyWindow, wire, viewPointXY);
+    CShapes::instance()->drawAllShapes3DXY(xyWindow, viewPointXY);
 
     // When using terminal commands to rotate, it displays the line around which
     // the 3D object will rotate.
@@ -680,7 +680,7 @@ void display3DYZ()
     glLoadIdentity();
 
     CPixelBuffer::instance(yzWindow)->resetPixelBuffer(backgroundColor);
-    CShapes::instance()->drawAllShapes3DYZ(yzWindow, wire, viewPointYZ);
+    CShapes::instance()->drawAllShapes3DYZ(yzWindow, viewPointYZ);
 
     if(rotationLineInput)
     {
@@ -706,7 +706,7 @@ void display3DZX()
     CPixelBuffer::instance(zxWindow)->resetPixelBuffer(backgroundColor);
 
     
-    CShapes::instance()->drawAllShapes3DZX(zxWindow, wire, viewPointZX);
+    CShapes::instance()->drawAllShapes3DZX(zxWindow, viewPointZX);
 
     if(rotationLineInput)
     {

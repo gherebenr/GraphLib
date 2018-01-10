@@ -32,22 +32,24 @@ void CGraphLib::setLight(float x, float y, float z)
 
 void CGraphLib::drawLightSource(std::string plane, int window)
 {
+    float minCoord = CPixelBuffer::instance(window)->getMinCoord();
+    float zoom = CPixelBuffer::instance(window)->getZoom();
     int x,y;
     CColor lightCol(1,1,0);
     if(plane == "xy")
     {
-        x = round((lightSource.x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        y= round((lightSource.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
+        x = round((lightSource.x-minCoord) * zoom);
+        y= round((lightSource.y-minCoord) * zoom);
     }
     else if (plane == "yz")
     {
-        x = round((lightSource.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        y= round((lightSource.z-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
+        x = round((lightSource.y-minCoord) * zoom);
+        y= round((lightSource.z-minCoord) * zoom);
     }
     else if (plane == "zx")
     {
-        x = round((lightSource.z-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        y= round((lightSource.x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
+        x = round((lightSource.z-minCoord) * zoom);
+        y= round((lightSource.x-minCoord) * zoom);
     }
     drawPoint2D(x-1,y,lightCol, window);
     drawPoint2D(x,y,lightCol, window);
@@ -288,9 +290,9 @@ void CGraphLib::calculateTriangleLight(STriangle& triangle,SPoint viewPoint)
         K = (lightSource - p).length();
         float denom = 1 / ((viewPoint - p).length() + K);
         float ratio = ambient + (temp1 + temp2) * iL * denom;
-        triangle.vertices[i].vColor.setR(triangle.currentColor.getR() * ratio);
-        triangle.vertices[i].vColor.setG(triangle.currentColor.getG() * ratio);
-        triangle.vertices[i].vColor.setB(triangle.currentColor.getB() * ratio);
+        triangle.vertices[i].vColor.setR(triangle.defaultColor.getR() * ratio);
+        triangle.vertices[i].vColor.setG(triangle.defaultColor.getG() * ratio);
+        triangle.vertices[i].vColor.setB(triangle.defaultColor.getB() * ratio);
     }
 }
 
@@ -349,22 +351,25 @@ void CGraphLib::drawPoint3D(float x, float y, CColor color, int pixelBufferIndex
     }
 }
 
-void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane)
+void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool active)
 {
+    float minCoord = CPixelBuffer::instance(window)->getMinCoord();
+    float zoom = CPixelBuffer::instance(window)->getZoom();
     for(int i = 0; i < 3; i++)
     {
         SVertex a = tVert[i];
         SVertex b = tVert[(i+1) % 3];
+        
         int dx, dy;
         if(halfTone)
         {
-            dx = round((b.x -CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((a.x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-            dy = round((b.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round ((a.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
+            dx = round((b.x - minCoord) * zoom / 3) - round((a.x - minCoord) * zoom / 3);
+            dy = round((b.y - minCoord) * zoom / 3) - round((a.y - minCoord) * zoom / 3);
         }
         else
         {
-            dx = round((b.x -CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((a.x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-            dy = round((b.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round ((a.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
+            dx = round((b.x - minCoord) * zoom) - round((a.x - minCoord) * zoom);
+            dy = round((b.y - minCoord) * zoom) - round((a.y - minCoord) * zoom);
         }
         int steps = abs(dx) > abs(dy) ? abs(dx) : abs(dy);
         float xIncr = float(dx) / float(steps);
@@ -373,15 +378,16 @@ void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane)
         float x,y;
         if(halfTone)
         {
-            x = round((a.x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-            y = round((a.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
+            x = round((a.x - minCoord) * zoom / 3);
+            y = round((a.y - minCoord) * zoom / 3);
         }
         else
         {
-            x = round((a.x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-            y = round((a.y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
+            x = round((a.x - minCoord) * zoom);
+            y = round((a.y - minCoord) * zoom);
         }
         CColor c = a.vColor;
+        CColor activeColor = CColor(0,1,0);
         for (int k = 0; k <= steps; k++)
         {
             if(halfTone)
@@ -390,9 +396,13 @@ void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane)
             }
             else
             {
-                drawPoint3D(x, y, c, window);
+                if(active){
+                    drawPoint3D(x, y, activeColor, window);
+                } else {
+                    drawPoint3D(x, y, c, window);
+                }
+                
             }
-            
             x += xIncr;
             y += yIncr;
             c += cIncr;
@@ -426,6 +436,8 @@ void CGraphLib::scanLineInterp(int startX, int endX, int y, CColor startC, CColo
 
 void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
 {
+    float minCoord = CPixelBuffer::instance(window)->getMinCoord();
+    float zoom = CPixelBuffer::instance(window)->getZoom();
     SVertex tVert[3];
     for(int i = 0; i < 3; i++)
     {
@@ -443,37 +455,34 @@ void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
         }
     }
 
-    edgeInterp(tVert, window, plane);
-
     float startX, endX;
     float startXIncr, endXIncr;
     CColor startC, endC;
     CColor startCIncr, endCIncr;
     int startY, endY;
-
     
     if(halfTone)
     {
-        startX = round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        endX = round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        startY = round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        endY = round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        startXIncr = float(round((tVert[1].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3)) / float(round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3));
-        endXIncr = float(round((tVert[2].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3)) / float(round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3));
+        startX = round((tVert[0].x-minCoord) * zoom / 3);
+        endX = round((tVert[0].x-minCoord) * zoom / 3);
+        startY = round((tVert[0].y-minCoord) * zoom / 3);
+        endY = round((tVert[1].y-minCoord) * zoom / 3);
+        startXIncr = float(round((tVert[1].x-minCoord) * zoom / 3) - round((tVert[0].x-minCoord) * zoom / 3)) / float(round((tVert[1].y-minCoord) * zoom / 3) - round((tVert[0].y-minCoord) * zoom / 3));
+        endXIncr = float(round((tVert[2].x-minCoord) * zoom / 3) - round((tVert[0].x-minCoord) * zoom / 3)) / float(round((tVert[2].y-minCoord) * zoom / 3) - round((tVert[0].y-minCoord) * zoom / 3));
     }
     else
     {
-        startX = round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        endX = round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        startY = round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        endY = round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        startXIncr = float(round((tVert[1].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom())) / float(round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()));
-        endXIncr = float(round((tVert[2].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[0].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom())) / float(round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()));
+        startX = round((tVert[0].x-minCoord) * zoom);
+        endX = round((tVert[0].x-minCoord) * zoom);
+        startY = round((tVert[0].y-minCoord) * zoom);
+        endY = round((tVert[1].y-minCoord) * zoom);
+        startXIncr = float(round((tVert[1].x-minCoord) * zoom) - round((tVert[0].x-minCoord) * zoom)) / float(round((tVert[1].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
+        endXIncr = float(round((tVert[2].x-minCoord) * zoom) - round((tVert[0].x-minCoord) * zoom)) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
     }
     startC = tVert[0].vColor;
     endC = tVert[0].vColor;
-    startCIncr = (tVert[1].vColor - tVert[0].vColor) / float(round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()));
-    endCIncr = (tVert[2].vColor - tVert[0].vColor) / float(round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[0].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()));
+    startCIncr = (tVert[1].vColor - tVert[0].vColor) / float(round((tVert[1].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
+    endCIncr = (tVert[2].vColor - tVert[0].vColor) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
     for (int k = startY; k < endY; k++) 
     {
         scanLineInterp(startX, endX, k, startC, endC, window);
@@ -485,20 +494,20 @@ void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
 
     if(halfTone)
     {
-        startY = round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        endY = round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        startX = round((tVert[1].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3);
-        startXIncr = float(round((tVert[2].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((tVert[1].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3)) / float(round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3) - round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom() / 3));
+        startY = round((tVert[1].y-minCoord) * zoom / 3);
+        endY = round((tVert[2].y-minCoord) * zoom / 3);
+        startX = round((tVert[1].x-minCoord) * zoom / 3);
+        startXIncr = float(round((tVert[2].x-minCoord) * zoom / 3) - round((tVert[1].x-minCoord) * zoom / 3)) / float(round((tVert[2].y-minCoord) * zoom / 3) - round((tVert[1].y-minCoord) * zoom / 3));
     }
     else
     {
-        startY = round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        endY = round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        startX = round((tVert[1].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom());
-        startXIncr = float(round((tVert[2].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[1].x-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom())) / float(round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()));
+        startY = round((tVert[1].y-minCoord) * zoom);
+        endY = round((tVert[2].y-minCoord) * zoom);
+        startX = round((tVert[1].x-minCoord) * zoom);
+        startXIncr = float(round((tVert[2].x-minCoord) * zoom) - round((tVert[1].x-minCoord) * zoom)) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[1].y-minCoord) * zoom));
     }
     startC = tVert[1].vColor;
-    startCIncr = (tVert[2].vColor - tVert[1].vColor) / float(round((tVert[2].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()) - round((tVert[1].y-CPixelBuffer::instance(window)->getMinCoord()) * CPixelBuffer::instance(window)->getZoom()));
+    startCIncr = (tVert[2].vColor - tVert[1].vColor) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[1].y-minCoord) * zoom));
     for (int k = startY; k < endY; k++) 
     {
         scanLineInterp(startX, endX, k, startC, endC, window);
@@ -507,4 +516,6 @@ void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
         startC += startCIncr;
         endC += endCIncr;
     }
+
+    edgeInterp(tVert, window, plane, triangle.active);
 }

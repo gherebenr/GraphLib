@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cmath>
+#include <string>
 #include "Color.h"
 
 struct SPoint
@@ -120,13 +121,10 @@ struct SVertex : public SPoint
     bool set;
 };
 
-struct SEdge
-{
-    int p1, p2;
-};
-
 struct STriangle
 {
+    int id;
+    SVertex centroid;
     SVertex vertices[3];
     int vertexIndices[3];
     float depthX, depthY, depthZ;
@@ -134,17 +132,16 @@ struct STriangle
     SVertex xyProj[3];
     SVertex yzProj[3];
     SVertex zxProj[3];
-    CColor currentColor;
+    bool active;
     CColor defaultColor;
 };
 
 struct SShape
 {
-    int k;
-    bool bezier;
+    int k = 2;
+    bool bezier = true;
     std::vector<SVertex> vertices;
     std::vector<float> knots;
-    std::vector<SEdge> edges;
     std::vector<STriangle>triangles;
 };
 
@@ -156,13 +153,9 @@ public:
     void drawAllShapes2D(bool drawOutline, bool useDDA, bool bFill);
     void drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool bFill, bool active);
 
-
-    void drawAllShapes3DXY(int xyWindow, bool wire, SPoint viewPoint);
-    void drawAllShapes3DYZ(int yzWindow, bool wire, SPoint viewPoint);
-    void drawAllShapes3DZX(int zxWindow, bool wire, SPoint viewPoint);
-    void drawShape3DXY(SShape& _3Dshape, bool active, bool wire, int xyWindow);
-    void drawShape3DYZ(SShape& _3Dshape, bool active, bool wire, int yzWindow);
-    void drawShape3DZX(SShape& _3Dshape, bool active, bool wire, int zxWindow);
+    void drawAllShapes3DXY(int xyWindow, SPoint viewPoint);
+    void drawAllShapes3DYZ(int yzWindow, SPoint viewPoint);
+    void drawAllShapes3DZX(int zxWindow, SPoint viewPoint);
 
     void getNextShape();
     void getPreviousShape();
@@ -172,7 +165,6 @@ public:
     void modifyVertexActiveShape(SVertex vertex, int index);
     void insertVertexActiveShape(SVertex vertex, int index);
     void deleteVertexActiveShape(int index);
-    void addEdgeToActiveShape(SEdge edge);
     void addTriangleToActiveShape(STriangle triangle);
 
     void undoVertexAdd();
@@ -208,7 +200,10 @@ public:
     void calculateVertexNormals(SShape &shape);
     void calculateVertexNormals();
     
-    void projectTriangle(STriangle& triangle);
+    void projectTriangleXY(STriangle& triangle);
+    void projectTriangleYZ(STriangle& triangle);
+    void projectTriangleZX(STriangle& triangle);
+    void projectTriangleCAM(STriangle& triangle);
 
     void drawAllCurves(int resolution);
     void drawCurve(SShape _2Dshape, bool active, int resolution);
@@ -238,7 +233,6 @@ private:
     CColor DDAColor = CColor(0,0,1);
     CColor FillColor = CColor(1,0,0);
     CColor BColor = CColor(0,1,0);
-    CColor BSColor = CColor(0,0,1);
     CColor axisColor =  CColor(0.7,0.7,0.7);
 };
 

@@ -18,7 +18,7 @@ public:
     static void calculateLightAtVertices(std::vector<STriangle>& allTriangles,SPoint viewPoint);
     static void calculateTriangleLight(STriangle& triangle,SPoint viewPoint);
     static void drawTriangle(STriangle& triangle, int window, std::string plane);
-    static void edgeInterp(SVertex tVert[], int window, std::string plane);
+    static void edgeInterp(SVertex tVert[], int window, std::string plane, bool active);
     static void scanLineInterp(int startX, int endX, int y, CColor startC, CColor endC, int window);
     static void drawPoint3D(float x, float y, CColor color, int pixelBufferIndex);
     static void drawLightSource(std::string plane, int window);

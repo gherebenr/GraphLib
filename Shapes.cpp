@@ -154,7 +154,7 @@ void CShapes::drawBSpline(float u, SShape curve, bool active)
     CColor curveColor = notSelected;
     if(active)
     {
-        curveColor = BSColor;
+        curveColor = BColor;
     }
     float zoom = CPixelBuffer::instance(0)->getZoom();
     if (curve.vertices.empty()) return;
@@ -234,76 +234,7 @@ void CShapes::modKnot(int index, float knot)
 }
 
 
-void CShapes::drawAllShapes3DXY(int xyWindow, bool wire, SPoint viewPoint)
-{
-    for(SShape& shape3D : allShapes)
-    {
-        drawShape3DXY(shape3D, false, wire, xyWindow);
-    }
-    drawShape3DXY(activeShape, true, wire, xyWindow);
-    if(!wire)
-    {
-        std::vector<STriangle> sortedZDepthTriangles = sortTrianglesByDepthZ();
-        CGraphLib::calculateLightAtVertices(sortedZDepthTriangles, viewPoint);
-        if(sortedZDepthTriangles.size() > 0)
-        {
-            for(auto &triangle : sortedZDepthTriangles)
-            {
-                projectTriangle(triangle);
-                CGraphLib::drawTriangle(triangle, xyWindow, "xy");
-            }
-        }
-        CGraphLib::drawLightSource("xy", xyWindow);
-    }
-}
-
-void CShapes::drawAllShapes3DYZ(int yzWindow, bool wire, SPoint viewPoint)
-{
-    for(SShape& shape3D : allShapes)
-    {
-        drawShape3DYZ(shape3D, false, wire, yzWindow);
-    }
-    drawShape3DYZ(activeShape, true, wire, yzWindow);
-     if(!wire)
-    {
-        std::vector<STriangle> sortedXDepthTriangles = sortTrianglesByDepthX();
-        CGraphLib::calculateLightAtVertices(sortedXDepthTriangles, viewPoint);
-        if(sortedXDepthTriangles.size() > 0)
-        {
-            for(auto &triangle : sortedXDepthTriangles)
-            {
-                projectTriangle(triangle);
-                CGraphLib::drawTriangle(triangle, yzWindow, "yz");
-            }
-        }
-        CGraphLib::drawLightSource("yz", yzWindow);
-    }
-}
-
-void CShapes::drawAllShapes3DZX(int zxWindow, bool wire, SPoint viewPoint)
-{
-    for(SShape& shape3D : allShapes)
-    {
-        drawShape3DZX(shape3D, false, wire, zxWindow);
-    }
-    drawShape3DZX(activeShape, true, wire, zxWindow);
-     if(!wire)
-    {
-        std::vector<STriangle> sortedYDepthTriangles = sortTrianglesByDepthY();
-        CGraphLib::calculateLightAtVertices(sortedYDepthTriangles, viewPoint);
-        if(sortedYDepthTriangles.size() > 0)
-        {
-            for(auto &triangle : sortedYDepthTriangles)
-            {
-                projectTriangle(triangle);
-                CGraphLib::drawTriangle(triangle, zxWindow, "zx");
-            }
-        }
-        CGraphLib::drawLightSource("zx", zxWindow);
-    }
-}
-
-void CShapes::drawShape3DXY(SShape& shape, bool active, bool wire, int xyWindow)
+void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(xyWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(xyWindow)->getMinCoord();
@@ -319,42 +250,20 @@ void CShapes::drawShape3DXY(SShape& shape, bool active, bool wire, int xyWindow)
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
     CGraphLib::drawLineB2D(startV, endV, axisColor, xyWindow);
-    CColor Bc = notSelected;
-    if(active)
+    std::vector<STriangle> sortedZDepthTriangles = sortTrianglesByDepthZ();
+    CGraphLib::calculateLightAtVertices(sortedZDepthTriangles, viewPoint);
+    if(sortedZDepthTriangles.size() > 0)
     {
-        Bc = BColor;
-    }
-    if(shape.vertices.size() > 3 && wire)
-    {
-        for(SEdge edge : shape.edges)
+        for(auto &triangle : sortedZDepthTriangles)
         {
-            startV.x = ((shape.vertices[edge.p1-1].x-minCoord));
-            startV.y = ((shape.vertices[edge.p1-1].y-minCoord));
-            endV.x = ((shape.vertices[edge.p2-1].x-minCoord));
-            endV.y = ((shape.vertices[edge.p2-1].y-minCoord));
-            CGraphLib::drawLineB2D(startV, endV, Bc, xyWindow);
+            projectTriangleXY(triangle);
+            CGraphLib::drawTriangle(triangle, xyWindow, "xy");
         }
     }
-    if(!wire)
-    {
-        if(active)
-        {
-            for(STriangle &triangle : shape.triangles)
-            {
-                triangle.currentColor = CColor(0,1,0);
-            }
-        }
-        else
-        {
-            for(STriangle &triangle : shape.triangles)
-            {
-                triangle.currentColor = triangle.defaultColor;
-            }
-        }
-    }
+    CGraphLib::drawLightSource("xy", xyWindow);
 }
 
-void CShapes::drawShape3DYZ(SShape& shape, bool active, bool wire, int yzWindow)
+void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(yzWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(yzWindow)->getMinCoord();
@@ -370,25 +279,20 @@ void CShapes::drawShape3DYZ(SShape& shape, bool active, bool wire, int yzWindow)
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
     CGraphLib::drawLineB2D(startV, endV, axisColor, yzWindow);
-    CColor Bc = notSelected;
-    if(active)
+    std::vector<STriangle> sortedXDepthTriangles = sortTrianglesByDepthX();
+    CGraphLib::calculateLightAtVertices(sortedXDepthTriangles, viewPoint);
+    if(sortedXDepthTriangles.size() > 0)
     {
-        Bc = BColor;
-    }
-    if(shape.vertices.size() > 3 && wire)
-    {
-        for(SEdge edge : shape.edges)
+        for(auto &triangle : sortedXDepthTriangles)
         {
-            startV.x = ((shape.vertices[edge.p1-1].y-minCoord));
-            startV.y = ((shape.vertices[edge.p1-1].z-minCoord));
-            endV.x = ((shape.vertices[edge.p2-1].y-minCoord));
-            endV.y = ((shape.vertices[edge.p2-1].z-minCoord));
-            CGraphLib::drawLineB2D(startV, endV, Bc, yzWindow);
+            projectTriangleYZ(triangle);
+            CGraphLib::drawTriangle(triangle, yzWindow, "yz");
         }
     }
+    CGraphLib::drawLightSource("yz", yzWindow);
 }
 
-void CShapes::drawShape3DZX(SShape& shape, bool active, bool wire, int zxWindow)
+void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(zxWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(zxWindow)->getMinCoord();
@@ -404,22 +308,17 @@ void CShapes::drawShape3DZX(SShape& shape, bool active, bool wire, int zxWindow)
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
     CGraphLib::drawLineB2D(startV, endV, axisColor, zxWindow);
-    CColor Bc = notSelected;
-    if(active)
+    std::vector<STriangle> sortedYDepthTriangles = sortTrianglesByDepthY();
+    CGraphLib::calculateLightAtVertices(sortedYDepthTriangles, viewPoint);
+    if(sortedYDepthTriangles.size() > 0)
     {
-        Bc = BColor;
-    }
-    if(shape.vertices.size() > 3 && wire)
-    {
-        for(SEdge edge : shape.edges)
+        for(auto &triangle : sortedYDepthTriangles)
         {
-            startV.x = ((shape.vertices[edge.p1-1].z-minCoord));
-            startV.y = ((shape.vertices[edge.p1-1].x-minCoord));
-            endV.x = ((shape.vertices[edge.p2-1].z-minCoord));
-            endV.y = ((shape.vertices[edge.p2-1].x-minCoord));
-            CGraphLib::drawLineB2D(startV, endV, Bc, zxWindow);
+            projectTriangleZX(triangle);
+            CGraphLib::drawTriangle(triangle, zxWindow, "zx");
         }
     }
+    CGraphLib::drawLightSource("zx", zxWindow);
 }
 
 void CShapes::getPreviousShape()
@@ -431,7 +330,6 @@ void CShapes::getPreviousShape()
             allShapes.insert(allShapes.begin(), activeShape);
         }
         activeShape.vertices.clear();
-        activeShape.edges.clear();
         activeShape.triangles.clear();
         activeShape.k = 0;
         activeShape.knots.clear();
@@ -450,7 +348,6 @@ void CShapes::getNextShape()
             allShapes.push_back(activeShape);
         }
         activeShape.vertices.clear();
-        activeShape.edges.clear();
         activeShape.triangles.clear();
         activeShape.k = 0;
         activeShape.knots.clear();
@@ -467,7 +364,6 @@ void CShapes::addActiveToList()
         allShapes.push_back(activeShape);
     }
     activeShape.vertices.clear();
-    activeShape.edges.clear();
     activeShape.triangles.clear();
     activeShape.k = 0;
     activeShape.knots.clear();
@@ -520,11 +416,6 @@ void CShapes::redoVertexAdd()
         activeShape.vertices.push_back(temp2DVertex);
          temp2DVertex.set = false;
     }
-}
-
-void CShapes::addEdgeToActiveShape(SEdge edge)
-{
-    activeShape.edges.push_back(edge);
 }
 
 void CShapes::addTriangleToActiveShape(STriangle triangle)
@@ -846,15 +737,15 @@ void swap(SVertex & p1, SVertex & p2)
 
 bool CShapes::depthSortFunctionX(STriangle t1, STriangle t2)
 {
-    return(t1.depthX < t2.depthX);
+    return(t1.depthX > t2.depthX);
 }
 bool CShapes::depthSortFunctionY(STriangle t1, STriangle t2)
 {
-    return(t1.depthY < t2.depthY);
+    return(t1.depthY > t2.depthY);
 }
 bool CShapes::depthSortFunctionZ(STriangle t1, STriangle t2)
 {
-    return(t1.depthZ < t2.depthZ);
+    return(t1.depthZ > t2.depthZ);
 }
 
 std::vector <STriangle> CShapes::sortTrianglesByDepthX()
@@ -871,6 +762,7 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthX()
             {
                 if(triangle.triangleNormal.dot(viewPointYZ) >= 0)
                 {
+                    triangle.active = false;
                     sortedTriangles.push_back(triangle);
                 }
             }
@@ -878,7 +770,8 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthX()
         for(auto triangle : activeShape.triangles)
         {
             if(triangle.triangleNormal.dot(viewPointYZ) >= 0)
-            {
+            {   
+                triangle.active = true;
                 sortedTriangles.push_back(triangle);
             }  
         }
@@ -901,6 +794,7 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthY()
             {
                 if(triangle.triangleNormal.dot(viewPointZX) >= 0)
                 {
+                    triangle.active = false;
                     sortedTriangles.push_back(triangle);
                 }
             }
@@ -909,6 +803,7 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthY()
         {
             if(triangle.triangleNormal.dot(viewPointZX) >= 0)
             {
+                triangle.active = true;
                 sortedTriangles.push_back(triangle);
             }  
         }
@@ -921,24 +816,34 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthZ()
 {
     SPoint viewPointXY(0.5, 0.5, 999999);
     std::vector<STriangle> sortedTriangles;
+    int count = 0;
     if(allShapes.size() > 0)
     {
         calculateVertexNormals();
         calculateTriangleDepths();
         for(auto shape : allShapes)
         {
+            count++;
+            SVertex tempCentroid = findCentroid3D(shape);
             for(auto triangle : shape.triangles)
             {
                 if(triangle.triangleNormal.dot(viewPointXY) >= 0)
                 {
+                    triangle.active = false;
+                    triangle.centroid = tempCentroid;
+                    triangle.id = count;
                     sortedTriangles.push_back(triangle);
                 }
             }
         }
+        SVertex tempCentroid = findCentroid3D(activeShape);
         for(auto triangle : activeShape.triangles)
         {
             if(triangle.triangleNormal.dot(viewPointXY) >= 0)
             {
+                triangle.active = true;
+                triangle.centroid = tempCentroid;
+                triangle.id = 0;
                 sortedTriangles.push_back(triangle);
             }  
         }
@@ -976,24 +881,38 @@ void CShapes::calculateVertexNormals(SShape &shape)
     }
 }
 
-void CShapes::projectTriangle(STriangle& triangle)
+void CShapes::projectTriangleXY(STriangle& triangle)
 {
     for(int i = 0; i < 3; i++)
     {
-        triangle.zxProj[i] = triangle.yzProj[i] = triangle.xyProj[i] =  triangle.vertices[i];
-        triangle.xyProj[i].x = triangle.vertices[i].x;
-        triangle.xyProj[i].y = triangle.vertices[i].y;
-        triangle.yzProj[i].x = triangle.vertices[i].y;
-        triangle.yzProj[i].y = triangle.vertices[i].z;
-        triangle.zxProj[i].x = triangle.vertices[i].z;
-        triangle.zxProj[i].y = triangle.vertices[i].x;
+        triangle.xyProj[i] =  triangle.vertices[i];
     }
     if (triangle.xyProj[0].y > triangle.xyProj[1].y) swap(triangle.xyProj[0], triangle.xyProj[1]);
     if (triangle.xyProj[0].y > triangle.xyProj[2].y) swap(triangle.xyProj[0], triangle.xyProj[2]);
     if (triangle.xyProj[1].y > triangle.xyProj[2].y) swap(triangle.xyProj[1], triangle.xyProj[2]);
+}
+
+void CShapes::projectTriangleYZ(STriangle& triangle)
+{
+    for(int i = 0; i < 3; i++)
+    {
+        triangle.yzProj[i] =  triangle.vertices[i];
+        triangle.yzProj[i].x = triangle.vertices[i].y;
+        triangle.yzProj[i].y = triangle.vertices[i].z;
+    }
     if (triangle.yzProj[0].y > triangle.yzProj[1].y) swap(triangle.yzProj[0], triangle.yzProj[1]);
     if (triangle.yzProj[0].y > triangle.yzProj[2].y) swap(triangle.yzProj[0], triangle.yzProj[2]);
     if (triangle.yzProj[1].y > triangle.yzProj[2].y) swap(triangle.yzProj[1], triangle.yzProj[2]);
+}
+
+void CShapes::projectTriangleZX(STriangle& triangle)
+{
+    for(int i = 0; i < 3; i++)
+    {
+        triangle.zxProj[i] = triangle.vertices[i];
+        triangle.zxProj[i].x = triangle.vertices[i].z;
+        triangle.zxProj[i].y = triangle.vertices[i].x;
+    }
     if (triangle.zxProj[0].y > triangle.zxProj[1].y) swap(triangle.zxProj[0], triangle.zxProj[1]);
     if (triangle.zxProj[0].y > triangle.zxProj[2].y) swap(triangle.zxProj[0], triangle.zxProj[2]);
     if (triangle.zxProj[1].y > triangle.zxProj[2].y) swap(triangle.zxProj[1], triangle.zxProj[2]);

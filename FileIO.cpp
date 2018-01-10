@@ -113,7 +113,6 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
         if(inputFile.is_open())
         {
             SVertex inputVertex;
-            SEdge inputEdge;
             STriangle inputTriangle;
             std::string line;
             if(getline (inputFile,line))
@@ -147,19 +146,6 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                         std::cout << line << std::endl;
                         inputVertex.z = (std::stof(line));
                         CShapes::instance()->addVertexToActiveShape(inputVertex);
-                    }
-                    inputFile >> line;
-                    numEdges = std::stoi(line);
-                    std::cout << line << std::endl;
-                    for(int i = 0; i < numEdges; i++)
-                    {
-                        inputFile >> line;
-                        std::cout << line << " ";
-                        inputEdge.p1 = (std::stof(line));
-                        inputFile >> line;
-                        std::cout << line << std::endl;
-                        inputEdge.p2 = (std::stof(line));
-                        CShapes::instance()->addEdgeToActiveShape(inputEdge);
                     }
                     inputFile >> line;
                     numTriangles = std::stoi(line);
@@ -273,12 +259,6 @@ void CFileIO::saveFile(bool _3Dmode, bool curveMode)
                 {
                     outputFile.precision(3);
                     outputFile << std::fixed << tShape.vertices[i].x << "\t" << tShape.vertices[i].y << "\t" << tShape.vertices[i].z << "\n";
-                }
-                outputFile << tShape.edges.size() << "\n";
-                for(int i = 0; i < tShape.edges.size(); i++)
-                {
-                    outputFile.precision(0);
-                    outputFile << std::fixed << tShape.edges[i].p1 << "\t" << tShape.edges[i].p2 << "\n";
                 }
                 outputFile << tShape.triangles.size() << "\n";
                 for(int i = 0; i < tShape.triangles.size(); i++)
