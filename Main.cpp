@@ -1,77 +1,98 @@
 #include <GL/glut.h>
 #include <vector>
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <limits>
 #include "Color.h"
 #include "PixelBuffer.h"
 #include "GraphLib.h"
 #include "FileIO.h"
 #include "Shapes.h"
-#include <iostream>
-#include <string>
-#include <cmath>
-#include <string.h>
-#include <limits>
 
-bool _3Dmode = false;
-bool curveEditor = false;
-bool wire = false;
-bool terminalMode = false;
-
-bool useDDA = false;
-bool bFill = true;
-bool drawOutline = true;
-
-bool translate = true;
-bool rotate = false;
-bool scale = false;
-bool viewportMove = false;
-bool borderSizeChange = false;
-bool rotationLineInput = false;
-bool lightSource = false;
-
+// Window Size.
 int winSizeH = 500;
 int winSizeV = 500;
 
+// Window ID.
 int MainWindow;
 int xyWindow;
 int zxWindow;
 int yzWindow;
 
+// Mode bools.
+bool _3Dmode = false;
+bool terminalMode = false;
+bool curveEditor = false;
+
+// Line draw algorithm for polygons.
+// Toggles between Bresenham and DDA.
+bool useDDA = false;
+
+// Whether to fill in polygons.
+bool bFill = true;
+// Whether to draw the border for polygons.
+bool drawOutline = true;
+
+// Switch how to manipulate an object.
+bool translate = true;
+bool rotate = false;
+bool scale = false;
+
+// Modify the viewport.
+bool viewportMove = false;
+bool borderSizeChange = false;
+
+// Toggle wireframe mode in 3D.
+bool wire = false;
+
+// Used when rotating a 3D object using terminal commands.
+bool rotationLineInput = false;
+SVertex rotStartPt;
+SVertex rotEndPt;
+float rotDegree = 0;
+
+// Whether to move the light source or not.
+bool lightSource = false;
+
+// Whether to modify a vertex.
 bool modifyingVertex = false;
 int indexOfVertexToModify = -1;
 
+// B-spline curve order.
 int curveOrder = 2;
 int curveResolution = 1000;
 
 CColor backgroundColor (.2,.2,.2);
 
+// Viewpoint for each viewport in 3D mode.
 SPoint viewPointXY(0.5, 0.5, 5);
 SPoint viewPointYZ(5, 0.5, 0.5);
 SPoint viewPointZX(0.5, 5, 0.5);
 
-SVertex rotStartPt;
-SVertex rotEndPt;
- float rotDegree = 0;
-
+// 2D
 void display2D();
+// Inputs.
 void mouseClick2D(int button, int state, int x, int y);
 void mouseDragVertex(int x, int y);
 void keyActions2D(unsigned char key, int x, int y);
 void specialInput2D(int key, int x, int y);
 
+// 3D
 void refreshAllWindows();
 void display3DXY();
 void display3DZX();
+// Inputs.
 void display3DYZ();
 void keyActions3D(unsigned char key, int x, int y);
 void specialInput3D(int key, int x, int y);
-
 void consoleInput();
 void timer(int val);
 
 int main(int argc, char *argv[])
 {
+    // Choose the mode the program will start in.
     std::string userInput = "";
-    
     std::cout << "Currently in 2D mode. Do you want to switch to 3D mode? y/n: ";
     std::cin >> userInput;
     if(userInput == "y" || userInput == "Y")
@@ -98,17 +119,11 @@ int main(int argc, char *argv[])
             curveEditor = true;
         }
     }
-
-    if(!_3Dmode && argc > 2)
-    {
-        winSizeH = atoi(argv[1]);
-        winSizeV = atoi(argv[2]);
-    }
     
+    // Setup.
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
 	glutInitWindowSize(winSizeH, winSizeV);
-    
     if(!_3Dmode)
     {
         glutInitWindowPosition(0, 0);
@@ -149,6 +164,7 @@ int main(int argc, char *argv[])
         CPixelBuffer::instance(zxWindow)->setPixelBufferSize(winSizeH,winSizeV, 0, 0, 0, 0, "zx");
     }
 
+    // Load shapes from files.
     CFileIO::loadFile(_3Dmode, curveEditor);
 
     if(terminalMode)
@@ -175,19 +191,23 @@ void refreshAllWindows()
     glutPostWindowRedisplay(zxWindow);
 }
 
+// Display function for 2D mode.
 void display2D()
 {   
 	glClear(GL_COLOR_BUFFER_BIT);
 	glLoadIdentity();
 
+    // Clearing the pixel buffer.
     CPixelBuffer::instance(0)->resetPixelBuffer(backgroundColor);
     
     if(!curveEditor)
     {
+        // Draw polygons.
         CShapes::instance()->drawAllShapes2D(drawOutline, useDDA, bFill);
     }
     else
     {
+        // Making sure order and knot values are correct for drawing curves.
         if(CShapes::instance()->getActiveShape().k > CShapes::instance()->getActiveShape().vertices.size())
         {
             CShapes::instance()->setK(CShapes::instance()->getActiveShape().vertices.size());
@@ -196,15 +216,15 @@ void display2D()
         {
             CShapes::instance()->addKnot(0);
         }
+        // Draw curves.
         CShapes::instance()->drawAllCurves(curveResolution);
     }
-
+    // Display the pixels in the buffer, then switch the buffer.
 	glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(0)->getPixelBuffer());
-
 	glutSwapBuffers();
 }
 
-
+// Function used for moving the vertex closest to the cursor.
 void mouseDragVertex(int x, int y)
 {
     if(modifyingVertex)
@@ -217,10 +237,13 @@ void mouseDragVertex(int x, int y)
     }
 }
 
+// Mouse input for 2D mode.
 void mouseClick2D(int button, int state, int x, int y)
 {
-    if(glutGetModifiers() == GLUT_ACTIVE_ALT)
+    // Checks if shift is being held down.
+    if(glutGetModifiers() == GLUT_ACTIVE_SHIFT)
     {
+        // On left click it moves the closest vertex to the cursor.
         if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
         {
             SVertex point;
@@ -246,9 +269,11 @@ void mouseClick2D(int button, int state, int x, int y)
             modifyingVertex = true;
         }
     }
+    // If Ctrl key is being held down.
     else if(glutGetModifiers() == GLUT_ACTIVE_CTRL)
     {
-        if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+        // On right click, delete the vertex closest to the cursor.
+        if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
         {
             SVertex point;
             point.x = (float)x / (float)winSizeH;
@@ -270,10 +295,8 @@ void mouseClick2D(int button, int state, int x, int y)
             CShapes::instance()->deleteVertexActiveShape(indexToChange);
             glutPostRedisplay();
         }
-    }
-    else if(glutGetModifiers() == GLUT_ACTIVE_SHIFT && CShapes::instance()->getActiveShape().vertices.size() > 1)
-    {
-        if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+        // On left click, add a vertex between the closest two vertices. 
+        else if(CShapes::instance()->getActiveShape().vertices.size() > 1 && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
         {
             SVertex point;
             point.x = (float)x / (float)winSizeH;
@@ -297,7 +320,7 @@ void mouseClick2D(int button, int state, int x, int y)
     }
     else
     {
-        // add a vertex to current shape
+        // On left click, add a vertex to current shape.
         if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
         {
             SVertex point;
@@ -313,13 +336,13 @@ void mouseClick2D(int button, int state, int x, int y)
             }
             glutPostRedisplay();
         }
-        // done drawing shape
+        // On right click, finish drawing shape.
         if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
         {
             CShapes::instance()->addActiveToList();
             glutPostRedisplay();
         }
-        
+        // Resetting some values when left click is not down.
         if(button == GLUT_LEFT_BUTTON && state == GLUT_UP)
         {
             modifyingVertex = false;
@@ -328,6 +351,7 @@ void mouseClick2D(int button, int state, int x, int y)
     }
 }
 
+// Keyboard inputs for 2D mode.
 void keyActions2D(unsigned char key, int x, int y)
 {
     // Toggle line drawing method;
@@ -402,6 +426,7 @@ void keyActions2D(unsigned char key, int x, int y)
         borderSizeChange = true;
         viewportMove = scale = translate = rotate = false;
     }
+    // increase curve order
     else if(key == '.')
     {
         curveOrder++;
@@ -410,6 +435,7 @@ void keyActions2D(unsigned char key, int x, int y)
         CShapes::instance()->setK(curveOrder);
         glutPostRedisplay();
     }
+    // decrease curve order
     else if(key == ',')
     {
         curveOrder--;
@@ -417,16 +443,19 @@ void keyActions2D(unsigned char key, int x, int y)
         CShapes::instance()->setK(curveOrder);
         glutPostRedisplay();
     }
+    // Toggle between Bezier and B-spline
     else if(key == '/')
     {
         CShapes::instance()->toggleBezier();
         glutPostRedisplay();
     }
+    // Toggle between polygon mode and curve mode.
     else if(key == ';')
     {
         curveEditor = !curveEditor;
         glutPostRedisplay();
     }
+    // Decrease resolution.
     else if(key == '[')
     {
         if(curveResolution >= 200)
@@ -444,6 +473,7 @@ void keyActions2D(unsigned char key, int x, int y)
         if (curveResolution < 2) {curveResolution = 2;}
         glutPostRedisplay();
     }
+    // Increase resolution.
     else if(key == ']')
     {
         if(curveResolution >= 100)
@@ -460,6 +490,7 @@ void keyActions2D(unsigned char key, int x, int y)
         }
         glutPostRedisplay();
     }
+    // Edit knots.
     else if(key == 'k' && !CShapes::instance()->getActiveShape().bezier)
     {
         std::cout << "Knots ([knot index]knot value): " << std::endl;
@@ -534,6 +565,8 @@ void keyActions2D(unsigned char key, int x, int y)
     }
 }
 
+// Cursor keys used to either translate, rotate, scale, 
+// move the viewport, or scale the viewport.
 void specialInput2D(int key, int x, int y)
 {
     if(key == GLUT_KEY_UP)
@@ -613,16 +646,18 @@ void specialInput2D(int key, int x, int y)
     glutPostRedisplay();
 }
 
+
+// 3D display functions.
 void display3DXY()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
 
     CPixelBuffer::instance(xyWindow)->resetPixelBuffer(backgroundColor);
-
-    
     CShapes::instance()->drawAllShapes3DXY(xyWindow, wire, viewPointXY);
 
+    // When using terminal commands to rotate, it displays the line around which
+    // the 3D object will rotate.
     if(rotationLineInput)
     {
         float zoomMult = CPixelBuffer::instance(xyWindow)->getZoom();
@@ -645,8 +680,6 @@ void display3DYZ()
     glLoadIdentity();
 
     CPixelBuffer::instance(yzWindow)->resetPixelBuffer(backgroundColor);
-
-    
     CShapes::instance()->drawAllShapes3DYZ(yzWindow, wire, viewPointYZ);
 
     if(rotationLineInput)
@@ -691,6 +724,7 @@ void display3DZX()
     glutSwapBuffers();
 }
 
+// Terminal commands.
 void consoleInput()
 {
     if(!rotationLineInput)
@@ -872,6 +906,7 @@ void consoleInput()
     return;
 }
 
+// Keyboard input for 3D mode.
 void keyActions3D(unsigned char key, int x, int y)
 {
     // translate
@@ -892,11 +927,13 @@ void keyActions3D(unsigned char key, int x, int y)
         scale = true;
         translate = rotate = lightSource = false;
     }
+    // Save file.
     else if(key == 'S')
     {
         CFileIO::saveFile(_3Dmode, curveEditor);
         refreshAllWindows();
     }
+    // Zoom to fit all shapes.
     else if(key == 'z')
     {
         CPixelBuffer::instance(xyWindow)->changeZoom();
@@ -904,16 +941,19 @@ void keyActions3D(unsigned char key, int x, int y)
         CPixelBuffer::instance(zxWindow)->changeZoom();
         refreshAllWindows();
     }
+    // Toggle half tone mode.
     else if(key == 'h')
     {
         CGraphLib::toggleHalfTone();
         refreshAllWindows();
     }
+    // Move the light source.
     else if (key == 'l')
     {
         lightSource = true;
         scale = translate = rotate = false;
     }
+    // Toggle wireframe mode.
     else if(key == 'w')
     {
         wire = !wire;
@@ -921,7 +961,7 @@ void keyActions3D(unsigned char key, int x, int y)
     }
 }
 
-
+// Setting up the cursor keys.
 void specialInput3D(int key, int x, int y)
 {
     if(key == GLUT_KEY_UP)

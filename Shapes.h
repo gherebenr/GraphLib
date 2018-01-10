@@ -238,6 +238,7 @@ private:
     CColor DDAColor = CColor(0,0,1);
     CColor FillColor = CColor(1,0,0);
     CColor BColor = CColor(0,1,0);
+    CColor BSColor = CColor(0,0,1);
     CColor axisColor =  CColor(0.7,0.7,0.7);
 };
 
