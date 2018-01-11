@@ -154,7 +154,7 @@ void CShapes::drawBSpline(float u, SShape curve, bool active)
     CColor curveColor = notSelected;
     if(active)
     {
-        curveColor = BColor;
+        curveColor = BSColor;
     }
     float zoom = CPixelBuffer::instance(0)->getZoom();
     if (curve.vertices.empty()) return;

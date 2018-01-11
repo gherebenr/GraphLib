@@ -124,8 +124,8 @@ struct STriangle
 
 struct SShape
 {
-    int k = 2;
-    bool bezier = true;
+    int k;
+    bool bezier;
     std::vector<SVertex> vertices;
     std::vector<float> knots;
     std::vector<STriangle>triangles;
@@ -204,7 +204,7 @@ public:
     void addKnot(float knot);
     void modKnot(int index, float knot);
 
-    void toggleBezier(){activeShape.bezier = !activeShape.bezier;}
+    void toggleBezier(){activeShape.bezier = !activeShape.bezier; activeShape.k = 2;}
     void setBezier(bool bez){activeShape.bezier = bez;}
 private:
     static CShapes* thisInstance;
@@ -219,6 +219,7 @@ private:
     CColor DDAColor = CColor(0,0,1);
     CColor FillColor = CColor(1,0,0);
     CColor BColor = CColor(0,1,0);
+    CColor BSColor = CColor(1,0,0);
     CColor axisColor =  CColor(0.7,0.7,0.7);
 };
 
