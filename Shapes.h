@@ -8,9 +8,10 @@
 
 struct SPoint
 {
+    float x,y,z;
     SPoint(){x = y = z = 0;}
     SPoint(float a, float b, float c) {x = a; y = b; z = c;}
-    float x,y,z;
+    
     SPoint operator- (const SPoint& v2)
     {
         SPoint retV;
@@ -18,11 +19,6 @@ struct SPoint
         retV.y = this->y - v2.y;
         retV.z = this->z - v2.z;
         return retV;
-    }
-
-    bool operator== (const SPoint& v2)
-    {
-        return this->x == v2.x && this->y == v2.y && this->z == v2.z;
     }
 
     SPoint operator+ (const SPoint& v2)
@@ -43,16 +39,7 @@ struct SPoint
         return retV;
     }
 
-    SPoint operator* (const int& c)
-    {
-        SPoint retV;
-        retV.x = this->x * c;
-        retV.y = this->y * c;
-        retV.z = this->z * c;
-        return retV;
-    }
-
-    SPoint operator/ (const int& c)
+    SPoint operator/ (const float& c)
     {
         SPoint retV;
         retV.x = this->x / c;

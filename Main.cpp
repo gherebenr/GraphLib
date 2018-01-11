@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
         glutMotionFunc(mouseDragVertex);
         glutKeyboardFunc(keyActions2D);
         glutSpecialFunc(specialInput2D);
-        CPixelBuffer::instance(0)->setPixelBufferSize(winSizeH,winSizeV, 10, 10, 10, 10);
+        CPixelBuffer::instance(0)->setPixelBufferSize(winSizeH,winSizeV, 10, 10, 10, 10, "xy");
     }
     else
     {

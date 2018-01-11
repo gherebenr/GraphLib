@@ -7,30 +7,20 @@
 
 std::vector<CPixelBuffer*> CPixelBuffer::pbInstances;
 
+// Pixel buffer factory/getter.
 CPixelBuffer *CPixelBuffer::instance(int instanceIndex)
 {
+    // Create pixel buffers until the index is less than the size
+    // of the array of pixel buffers.
     while(pbInstances.size() <= instanceIndex)
     {
         pbInstances.push_back(new CPixelBuffer);
     }
+    // Return the pixel buffer with the given index.
     return pbInstances[instanceIndex];
 }
 
-void CPixelBuffer::setPixelBufferSize(int x, int y, int l, int r, int d, int u)
-{
-    sizeH = x;
-    sizeV = y;
-
-    zoomMult = sizeH;
-
-    offLeft = l;
-    offRight = r;
-    offDown = d;
-    offUp = u;
-
-    pixelBuffer = new float[sizeH * sizeV * 3];
-}
-
+// Function that sets the size of the pixel buffer, and the offsets for the viewport.
 void CPixelBuffer::setPixelBufferSize(int x, int y, int l, int r, int d, int u, std::string plane)
 {
     sizeH = x;
@@ -48,11 +38,13 @@ void CPixelBuffer::setPixelBufferSize(int x, int y, int l, int r, int d, int u, 
     pixelBuffer = new float[sizeH * sizeV * 3];
 }
 
+// Pixel buffer getter.
 float *CPixelBuffer::getPixelBuffer() const
 {
     return pixelBuffer;
 }
 
+// Returns the color of a pixel at a given location.
 CColor CPixelBuffer::getPixelColor(int x, int y)
 {
     if(x < sizeH && y < sizeV)
@@ -60,10 +52,10 @@ CColor CPixelBuffer::getPixelColor(int x, int y)
         CColor returnColor(*(pixelBuffer + (x + y * sizeH) * 3), *(pixelBuffer + (x + y * sizeH) * 3 + 1), *(pixelBuffer + (x + y * sizeH) * 3 + 2));
         return returnColor;
     }
-    CColor ret(0,0,0);
-    return ret;
+    return CColor(0,0,0);
 }
 
+// Set the color of a pixel at a give location.
 void CPixelBuffer::setPixelColor(float xin, float yin, CColor color, bool inView)
 {
     int x = round(xin);
@@ -82,6 +74,7 @@ void CPixelBuffer::setPixelColor(float xin, float yin, CColor color, bool inView
     }
 }
 
+// Resets all pixels to given color.
 void CPixelBuffer::resetPixelBuffer(CColor color)
 {
     for(int y = 0; y < sizeV; y++)
@@ -100,6 +93,7 @@ void CPixelBuffer::resetPixelBuffer(CColor color)
     }
 }
 
+// Move the viewport around.
 void CPixelBuffer::changeBorder(char border, int amount)
 {
     if(border == 'u')
@@ -144,6 +138,7 @@ void CPixelBuffer::changeBorder(char border, int amount)
     }
 }
 
+// Used for clipping, to know whether one of the vertices of a line is outside the viewport.
 bool CPixelBuffer::ablrCode(SVertex vertex, int dir)
 {
     int x = round(vertex.x * zoomMult);
@@ -159,6 +154,7 @@ bool CPixelBuffer::ablrCode(SVertex vertex, int dir)
     return ablr;
 }
 
+// Zoom out to fit all 3D objects.
 void CPixelBuffer::changeZoom()
 {
     float min = 0;

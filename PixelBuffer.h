@@ -9,7 +9,6 @@ class CPixelBuffer
 {
 public:
     static CPixelBuffer *instance(int instanceIndex);
-    void setPixelBufferSize(int x, int y, int l, int r, int d, int u);
     void setPixelBufferSize(int x, int y, int l, int r, int d, int u, std::string plane);
 
     void resetPixelBuffer(CColor color);
@@ -36,12 +35,17 @@ public:
     bool ablrCode(SVertex vertex, int dir);
     void changeZoom();
 private:
+    // Vector containing all the pixel buffers.
     static std::vector<CPixelBuffer*> pbInstances;
+    // This pixel buffer.
     float *pixelBuffer = nullptr;
 
+    // Size of the viewport.
     int sizeH = 0;
     int sizeV = 0;
 
+    // Offsets for the viewport.
+    // The viewport can be smaller than the actual window.
     int offLeft = 0;
     int offRight = 0;
     int offDown = 0;
@@ -51,10 +55,15 @@ private:
     int offDownA = 0;
     int offUpA = 0;
 
+    // Used when zooming out to fit all 3D objects.
+    // Value to multiply by.
     float zoomMult = sizeH;
+    // Smallest and biggest value for a pixel coordinate.
+    // Used so the objects stay in the same place when zooming out.
     float minCoord = 0;
     float maxCoord = 1;
    
+   // Name of the plane displayed in a window.
    std::string viewportPlane = "";
 };
 #endif
