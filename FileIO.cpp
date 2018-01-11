@@ -154,15 +154,15 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                     {
                         inputFile >> line;
                         std::cout << line << " ";
-                        inputTriangle.vertexIndices[0] = std::stof(line)-1;
+                        inputTriangle.vertexIndices[0] = std::stof(line);
                         inputTriangle.vertices[0] = (CShapes::instance()->getActiveShape().vertices[inputTriangle.vertexIndices[0]]);
                         inputFile >> line;
                         std::cout << line << " ";
-                        inputTriangle.vertexIndices[1] = std::stof(line)-1;
+                        inputTriangle.vertexIndices[1] = std::stof(line);
                         inputTriangle.vertices[1] = (CShapes::instance()->getActiveShape().vertices[inputTriangle.vertexIndices[1]]);
                         inputFile >> line;
                         std::cout << line << std::endl;
-                        inputTriangle.vertexIndices[2] = std::stof(line)-1;
+                        inputTriangle.vertexIndices[2] = std::stof(line);
                         inputTriangle.vertices[2] = (CShapes::instance()->getActiveShape().vertices[inputTriangle.vertexIndices[2]]);
                         inputTriangle.defaultColor = color;
                         CShapes::instance()->addTriangleToActiveShape(inputTriangle);

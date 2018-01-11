@@ -115,7 +115,6 @@ struct SPoint
 struct SVertex : public SPoint
 {
     SVertex(){set = false;}
-    SVertex(float a, float b, float c) {x = a; y = b; z = c;}
     SPoint normal;
     CColor vColor;
     bool set;
