@@ -660,13 +660,13 @@ void display3DXY()
     // the 3D object will rotate.
     if(rotationLineInput)
     {
-        float zoomMult = CPixelBuffer::instance(xyWindow)->getZoom();
+        float minCoord = CPixelBuffer::instance(xyWindow)->getMinCoord();
         SVertex startv;
-        startv.x = rotStartPt.x*zoomMult;
-        startv.y = rotStartPt.y*zoomMult;
+        startv.x = -minCoord + rotStartPt.x;
+        startv.y = -minCoord + rotStartPt.y;
         SVertex endv;
-        endv.x = rotEndPt.x*zoomMult;
-        endv.y = rotEndPt.y*zoomMult;
+        endv.x = -minCoord + rotEndPt.x;
+        endv.y = -minCoord + rotEndPt.y;
         CGraphLib::drawLineB2D(startv, endv,  CColor(1,0,0), xyWindow);
     }
 
@@ -684,13 +684,13 @@ void display3DYZ()
 
     if(rotationLineInput)
     {
-        float zoomMult = CPixelBuffer::instance(yzWindow)->getZoom();
+        float minCoord = CPixelBuffer::instance(yzWindow)->getMinCoord();
         SVertex startv;
-        startv.x = rotStartPt.x*zoomMult;
-        startv.y = rotStartPt.y*zoomMult;
+        startv.x = -minCoord + rotStartPt.y;
+        startv.y = -minCoord + rotStartPt.z;
         SVertex endv;
-        endv.x = rotEndPt.x*zoomMult;
-        endv.y = rotEndPt.y*zoomMult;
+        endv.x = -minCoord + rotEndPt.y;
+        endv.y = -minCoord + rotEndPt.z;
         CGraphLib::drawLineB2D(startv, endv, CColor(1,0,0), yzWindow);
     }
 
@@ -710,13 +710,13 @@ void display3DZX()
 
     if(rotationLineInput)
     {
-        float zoomMult = CPixelBuffer::instance(zxWindow)->getZoom();
+        float minCoord = CPixelBuffer::instance(zxWindow)->getMinCoord();
         SVertex startv;
-        startv.x = rotStartPt.x*zoomMult;
-        startv.y = rotStartPt.y*zoomMult;
+        startv.x = -minCoord + rotStartPt.z;
+        startv.y = -minCoord + rotStartPt.x;
         SVertex endv;
-        endv.x = rotEndPt.x*zoomMult;
-        endv.y = rotEndPt.y*zoomMult;
+        endv.x = -minCoord + rotEndPt.z;
+        endv.y = -minCoord + rotEndPt.x;
         CGraphLib::drawLineB2D(startv, endv, CColor(1,0,0), zxWindow);
     }
 
@@ -778,14 +778,31 @@ void consoleInput()
             std::cout << "Enter Z value for p2:" ;
             std::cin >> userInput;
             z2 = stof(userInput);
+
+            // float maxCoord = CPixelBuffer::instance(xyWindow)->getMaxCoord();
+            // float minCoord = CPixelBuffer::instance(xyWindow)->getMinCoord();
+            // SVertex startV;
+            // SVertex endV;
+            // startV.x = (-minCoord+0.3);
+            // startV.y = (minCoord);
+            // endV.x = (-minCoord);
+            // endV.y = (maxCoord-minCoord);
+            // CGraphLib::drawLineB2D(startV, endV, CColor(1,0,0), xyWindow);
+
+
             SVertex start;
             start.x = x;
             start.y = y;
             start.z = z;
+            
             SVertex end;
             end.x = x2;
             end.y = y2;
             end.z = z2;
+            // CGraphLib::drawLineB2D(start, end, CColor(1,0,0), xyWindow);
+            // glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(xyWindow)->getPixelBuffer());
+            // glutSwapBuffers();
+            // refreshAllWindows();
             std::cout << "Enter degrees:" ;
             std::cin >> userInput;
             degree = stof(userInput);
