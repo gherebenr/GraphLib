@@ -15,7 +15,9 @@ float CGraphLib::kD = 1;
 float CGraphLib::kS = 1;
 SPoint CGraphLib::lightSource(0.9,0.9,0.9);
 bool CGraphLib::halfTone = false;
+bool CGraphLib::wire = false;
 
+// Function to move the light source by input amount.
 void CGraphLib::moveLight(float x, float y, float z)
 {
     lightSource.x += x;
@@ -23,6 +25,7 @@ void CGraphLib::moveLight(float x, float y, float z)
     lightSource.z += z;
 }
 
+// Set the light source location.
 void CGraphLib::setLight(float x, float y, float z)
 {
     lightSource.x = x;
@@ -30,6 +33,7 @@ void CGraphLib::setLight(float x, float y, float z)
     lightSource.z = z;
 }
 
+// Function that draws a yellow point where the light source is.
 void CGraphLib::drawLightSource(std::string plane, int window)
 {
     float minCoord = CPixelBuffer::instance(window)->getMinCoord();
@@ -65,7 +69,8 @@ void CGraphLib::drawLightSource(std::string plane, int window)
     drawPoint2D(x+1,y-1,lightCol, window);
 }
 
-void CGraphLib::drawLineDDA2D(SVertex start, SVertex end, CColor color)
+// Function that draws lines using the DDA algorithm.
+void CGraphLib::drawLineDDA(SVertex start, SVertex end, CColor color)
 {
     int zoom = CPixelBuffer::instance(0)->getZoom();
     float xD = 0;
@@ -94,7 +99,8 @@ void CGraphLib::drawLineDDA2D(SVertex start, SVertex end, CColor color)
     }
 }
 
-void CGraphLib::drawLineB2D(SVertex start, SVertex end, CColor color, int pixelBufferIndex)
+// Function that draws lines using the Bresenham algorithm.
+void CGraphLib::drawLineB(SVertex start, SVertex end, CColor color, int pixelBufferIndex)
 {
     int zoom = CPixelBuffer::instance(pixelBufferIndex)->getZoom();
     int x = 0, y = 0, yP = 0, xP = 0;
@@ -180,11 +186,13 @@ void CGraphLib::drawLineB2D(SVertex start, SVertex end, CColor color, int pixelB
     drawPoint2D(eX,eY,color, pixelBufferIndex);
 }
 
+// Function that sets the color of a pixel in the buffer.
 void CGraphLib::drawPoint2D(float x, float y, CColor color, int pixelBufferIndex)
 {
     CPixelBuffer::instance(pixelBufferIndex)->setPixelColor(x,y,color,true);
 }
 
+// Function that uses a scanline algorithm to fill in a polygon.
 void CGraphLib::fillShape2D(CColor color,const SShape shape, int window)
 {
     int zoom = CPixelBuffer::instance(0)->getZoom();
@@ -257,6 +265,7 @@ void CGraphLib::fillShape2D(CColor color,const SShape shape, int window)
     delete [] triggerPoints;
 }
 
+// Function that returns a color with the highest values for R, G and B currently in the pixel buffer.
 CColor CGraphLib::maxColor(const std::vector<STriangle>& allTriangles)
 {
     CColor returnColor(0,0,0);
@@ -275,7 +284,8 @@ CColor CGraphLib::maxColor(const std::vector<STriangle>& allTriangles)
     returnColor.setB(maxI);
     return returnColor;
 }
-#include <iostream>
+
+// Function that calculates the color for each vertex of a triangle using Phong's lighting model.
 void CGraphLib::calculateTriangleLight(STriangle& triangle,SPoint viewPoint)
 {
     float ambient = kA * iA;
@@ -296,6 +306,7 @@ void CGraphLib::calculateTriangleLight(STriangle& triangle,SPoint viewPoint)
     }
 }
 
+// Function that calls calculateTriangleLight for all triangles, and normalizes the colors.
 void CGraphLib::calculateLightAtVertices(std::vector<STriangle>& allTriangles, SPoint viewPoint)
 {
     for(auto & ttriangle : allTriangles)
@@ -315,6 +326,8 @@ void CGraphLib::calculateLightAtVertices(std::vector<STriangle>& allTriangles, S
     }
 }
 
+// Function that draws a point for 3D mode.
+// If in half-tone mode the pixels are larger, otherwise a normal pixel is drawn.
 void CGraphLib::drawPoint3D(float x, float y, CColor color, int pixelBufferIndex)
 {
     if (halfTone)
@@ -352,6 +365,7 @@ void CGraphLib::drawPoint3D(float x, float y, CColor color, int pixelBufferIndex
     }
 }
 
+// Interpolates the color along the edges of the triangle. Draws the edge of the triangle.
 void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool active, bool wire)
 {
     float minCoord = CPixelBuffer::instance(window)->getMinCoord();
@@ -415,6 +429,7 @@ void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool 
     }
 }
 
+// Interpolates color horizontally, to fill in the triangle.
 void CGraphLib::scanLineInterp(int startX, int endX, int y, CColor startC, CColor endC, int window)
 {
     int steps = endX - startX;
@@ -439,7 +454,8 @@ void CGraphLib::scanLineInterp(int startX, int endX, int y, CColor startC, CColo
     }
 }
 
-void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane, bool wire)
+// Function that draws a triangle.
+void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
 {
     float minCoord = CPixelBuffer::instance(window)->getMinCoord();
     float zoom = CPixelBuffer::instance(window)->getZoom();
@@ -524,6 +540,5 @@ void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane,
             endC += endCIncr;
         }
     }
-
     edgeInterp(tVert, window, plane, triangle.active, wire);
 }

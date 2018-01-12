@@ -43,9 +43,6 @@ bool scale = false;
 bool viewportMove = false;
 bool borderSizeChange = false;
 
-// Toggle wireframe mode in 3D.
-bool wire = false;
-
 // Used when rotating a 3D object using terminal commands.
 bool rotationLineInput = false;
 SVertex rotStartPt;
@@ -654,7 +651,7 @@ void display3DXY()
     glLoadIdentity();
 
     CPixelBuffer::instance(xyWindow)->resetPixelBuffer(backgroundColor);
-    CShapes::instance()->drawAllShapes3DXY(xyWindow, viewPointXY, wire);
+    CShapes::instance()->drawAllShapes3DXY(xyWindow, viewPointXY);
 
     // When using terminal commands to rotate, it displays the line around which
     // the 3D object will rotate.
@@ -667,7 +664,7 @@ void display3DXY()
         SVertex endv;
         endv.x = -minCoord + rotEndPt.x;
         endv.y = -minCoord + rotEndPt.y;
-        CGraphLib::drawLineB2D(startv, endv,  CColor(1,0,0), xyWindow);
+        CGraphLib::drawLineB(startv, endv,  CColor(1,0,0), xyWindow);
     }
 
     glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(xyWindow)->getPixelBuffer());
@@ -680,7 +677,7 @@ void display3DYZ()
     glLoadIdentity();
 
     CPixelBuffer::instance(yzWindow)->resetPixelBuffer(backgroundColor);
-    CShapes::instance()->drawAllShapes3DYZ(yzWindow, viewPointYZ, wire);
+    CShapes::instance()->drawAllShapes3DYZ(yzWindow, viewPointYZ);
 
     if(rotationLineInput)
     {
@@ -691,7 +688,7 @@ void display3DYZ()
         SVertex endv;
         endv.x = -minCoord + rotEndPt.y;
         endv.y = -minCoord + rotEndPt.z;
-        CGraphLib::drawLineB2D(startv, endv, CColor(1,0,0), yzWindow);
+        CGraphLib::drawLineB(startv, endv, CColor(1,0,0), yzWindow);
     }
 
     glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(yzWindow)->getPixelBuffer());
@@ -706,7 +703,7 @@ void display3DZX()
     CPixelBuffer::instance(zxWindow)->resetPixelBuffer(backgroundColor);
 
     
-    CShapes::instance()->drawAllShapes3DZX(zxWindow, viewPointZX, wire);
+    CShapes::instance()->drawAllShapes3DZX(zxWindow, viewPointZX);
 
     if(rotationLineInput)
     {
@@ -717,7 +714,7 @@ void display3DZX()
         SVertex endv;
         endv.x = -minCoord + rotEndPt.z;
         endv.y = -minCoord + rotEndPt.x;
-        CGraphLib::drawLineB2D(startv, endv, CColor(1,0,0), zxWindow);
+        CGraphLib::drawLineB(startv, endv, CColor(1,0,0), zxWindow);
     }
 
     glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(zxWindow)->getPixelBuffer());
@@ -813,7 +810,7 @@ void consoleInput()
         }
         else if(userInput == "wire")
         {
-            wire = !wire;
+            CGraphLib::toggleWireframeMode();
         }
         else if(userInput == "light")
         {
@@ -955,7 +952,7 @@ void keyActions3D(unsigned char key, int x, int y)
     // Toggle wireframe mode.
     else if(key == 'w')
     {
-        wire = !wire;
+        CGraphLib::toggleWireframeMode();
         refreshAllWindows();
     }
 }

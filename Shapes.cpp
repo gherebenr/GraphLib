@@ -59,8 +59,8 @@ void CShapes::drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool b
     {
         for(int i = 0; i < _2Dshape.vertices.size() - 1; i++)
         {
-            if(useDDA){CGraphLib::drawLineDDA2D(_2Dshape.vertices[i], _2Dshape.vertices[i+1], DDAc);}
-            else{CGraphLib::drawLineB2D(_2Dshape.vertices[i], _2Dshape.vertices[i+1], Bc, 0);}
+            if(useDDA){CGraphLib::drawLineDDA(_2Dshape.vertices[i], _2Dshape.vertices[i+1], DDAc);}
+            else{CGraphLib::drawLineB(_2Dshape.vertices[i], _2Dshape.vertices[i+1], Bc, 0);}
         }
     }
     // If the shape has three vertices or more.
@@ -77,8 +77,8 @@ void CShapes::drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool b
             // Draws lines between all the vertices.
             for(int i = 0; i < _2Dshape.vertices.size(); i++)
             {
-                if(useDDA){CGraphLib::drawLineDDA2D(_2Dshape.vertices[i], _2Dshape.vertices[(i+1) % _2Dshape.vertices.size()], DDAc);}
-                else{CGraphLib::drawLineB2D(_2Dshape.vertices[i], _2Dshape.vertices[(i+1) % _2Dshape.vertices.size()], Bc, 0);}
+                if(useDDA){CGraphLib::drawLineDDA(_2Dshape.vertices[i], _2Dshape.vertices[(i+1) % _2Dshape.vertices.size()], DDAc);}
+                else{CGraphLib::drawLineB(_2Dshape.vertices[i], _2Dshape.vertices[(i+1) % _2Dshape.vertices.size()], Bc, 0);}
             }
         }
     }
@@ -258,7 +258,7 @@ void CShapes::modKnot(int index, float knot)
 }
 
 // Function that draws all 3D objects in the XY plane.
-void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint, bool wire)
+void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
 {
     // Draws lines X=0 and Y=0.
     float maxCoord = CPixelBuffer::instance(xyWindow)->getMaxCoord();
@@ -269,12 +269,12 @@ void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint, bool wire)
     startV.y = (minCoord);
     endV.x = (-minCoord);
     endV.y = (maxCoord-minCoord);
-    CGraphLib::drawLineB2D(startV, endV, axisColor, xyWindow);
+    CGraphLib::drawLineB(startV, endV, axisColor, xyWindow);
     startV.x = (minCoord);
     startV.y = (-minCoord);
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
-    CGraphLib::drawLineB2D(startV, endV, axisColor, xyWindow);
+    CGraphLib::drawLineB(startV, endV, axisColor, xyWindow);
 
     // Sorting triangles by depth in the Z direction which determines the order
     // in which the triangles will be rendered (Painter's Algorithm).
@@ -288,7 +288,7 @@ void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint, bool wire)
             // Project each triangle in the XY plane.
             projectTriangleXY(triangle);
             // Draw the triangle.
-            CGraphLib::drawTriangle(triangle, xyWindow, "xy", wire);
+            CGraphLib::drawTriangle(triangle, xyWindow, "xy");
         }
     }
     // Draw a point representing the light source.
@@ -296,7 +296,7 @@ void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint, bool wire)
 }
 
 // Function that draws all 3D objects in the YZ plane.
-void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint, bool wire)
+void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(yzWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(yzWindow)->getMinCoord();
@@ -306,12 +306,12 @@ void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint, bool wire)
     startV.y = (minCoord);
     endV.x = (-minCoord);
     endV.y = (maxCoord-minCoord);
-    CGraphLib::drawLineB2D(startV, endV, axisColor, yzWindow);
+    CGraphLib::drawLineB(startV, endV, axisColor, yzWindow);
     startV.x = (minCoord);
     startV.y = (-minCoord);
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
-    CGraphLib::drawLineB2D(startV, endV, axisColor, yzWindow);
+    CGraphLib::drawLineB(startV, endV, axisColor, yzWindow);
     std::vector<STriangle> sortedXDepthTriangles = sortTrianglesByDepthX();
     CGraphLib::calculateLightAtVertices(sortedXDepthTriangles, viewPoint);
     if(sortedXDepthTriangles.size() > 0)
@@ -319,14 +319,14 @@ void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint, bool wire)
         for(auto &triangle : sortedXDepthTriangles)
         {
             projectTriangleYZ(triangle);
-            CGraphLib::drawTriangle(triangle, yzWindow, "yz", wire);
+            CGraphLib::drawTriangle(triangle, yzWindow, "yz");
         }
     }
     CGraphLib::drawLightSource("yz", yzWindow);
 }
 
 // Function that draws all 3D objects in the ZX plane.
-void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint, bool wire)
+void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(zxWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(zxWindow)->getMinCoord();
@@ -336,12 +336,12 @@ void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint, bool wire)
     startV.y = (minCoord);
     endV.x = (-minCoord);
     endV.y = (maxCoord-minCoord);
-    CGraphLib::drawLineB2D(startV, endV, axisColor, zxWindow);
+    CGraphLib::drawLineB(startV, endV, axisColor, zxWindow);
     startV.x = (minCoord);
     startV.y = (-minCoord);
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
-    CGraphLib::drawLineB2D(startV, endV, axisColor, zxWindow);
+    CGraphLib::drawLineB(startV, endV, axisColor, zxWindow);
     std::vector<STriangle> sortedYDepthTriangles = sortTrianglesByDepthY();
     CGraphLib::calculateLightAtVertices(sortedYDepthTriangles, viewPoint);
     if(sortedYDepthTriangles.size() > 0)
@@ -349,7 +349,7 @@ void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint, bool wire)
         for(auto &triangle : sortedYDepthTriangles)
         {
             projectTriangleZX(triangle);
-            CGraphLib::drawTriangle(triangle, zxWindow, "zx", wire);
+            CGraphLib::drawTriangle(triangle, zxWindow, "zx");
         }
     }
     CGraphLib::drawLightSource("zx", zxWindow);
