@@ -10,6 +10,7 @@
 
 CShapes* CShapes::thisInstance = new CShapes;
 
+// Single object of this class is created and returned.
 CShapes* CShapes::instance()
 {
     if(thisInstance == nullptr)
@@ -19,6 +20,7 @@ CShapes* CShapes::instance()
     return thisInstance;
 }
 
+// Function that calls drawShape2D for each shape.
 void CShapes::drawAllShapes2D(bool drawOutline, bool useDDA, bool bFill)
 {
      for(SShape  tShape : allShapes)
@@ -28,9 +30,12 @@ void CShapes::drawAllShapes2D(bool drawOutline, bool useDDA, bool bFill)
     drawShape2D(activeShape, drawOutline, useDDA, bFill, true);
 }
 
+// Function that draws 2D Shapes.
 void CShapes::drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool bFill, bool active)
 {
+    // Get the zoom.
     float zoom = CPixelBuffer::instance(0)->getZoom();
+    // Set the colors.
     CColor fillColor = notSelectedFill;
     CColor DDAc = notSelected;
     CColor Bc = notSelected;
@@ -43,10 +48,13 @@ void CShapes::drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool b
         pt = Bc;
         if(useDDA){pt = DDAc;}
     }
+    // If the shape only has 1 vertex, draw it.
     if(_2Dshape.vertices.size() == 1)
     {
         CGraphLib::drawPoint2D(_2Dshape.vertices[0].x * zoom, _2Dshape.vertices[0].y * zoom, pt, 0);
     } 
+    // If it has two vertices, draw a line between them using either DDA or Bresenham
+    // depending on the value of the useDDA parameter.
     else if(_2Dshape.vertices.size() == 2 )
     {
         for(int i = 0; i < _2Dshape.vertices.size() - 1; i++)
@@ -55,25 +63,28 @@ void CShapes::drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool b
             else{CGraphLib::drawLineB2D(_2Dshape.vertices[i], _2Dshape.vertices[i+1], Bc, 0);}
         }
     }
+    // If the shape has three vertices or more.
     else if(_2Dshape.vertices.size() > 2)
     {
+        // If bFill is true, then the shape will be filled in.
+        // Otherwise only the outline will be drawn.
         if(bFill)
         {
             CGraphLib::fillShape2D(fillColor, _2Dshape,0);
         }
         if(drawOutline || !bFill)
         {
-            for(int i = 0; i < _2Dshape.vertices.size() - 1; i++)
+            // Draws lines between all the vertices.
+            for(int i = 0; i < _2Dshape.vertices.size(); i++)
             {
-                if(useDDA){CGraphLib::drawLineDDA2D(_2Dshape.vertices[i], _2Dshape.vertices[i+1], DDAc);}
-                else{CGraphLib::drawLineB2D(_2Dshape.vertices[i], _2Dshape.vertices[i+1], Bc, 0);}
+                if(useDDA){CGraphLib::drawLineDDA2D(_2Dshape.vertices[i], _2Dshape.vertices[(i+1) % _2Dshape.vertices.size()], DDAc);}
+                else{CGraphLib::drawLineB2D(_2Dshape.vertices[i], _2Dshape.vertices[(i+1) % _2Dshape.vertices.size()], Bc, 0);}
             }
-            if(useDDA){CGraphLib::drawLineDDA2D(_2Dshape.vertices[_2Dshape.vertices.size() - 1], _2Dshape.vertices[0], DDAc);}
-                else{CGraphLib::drawLineB2D(_2Dshape.vertices[_2Dshape.vertices.size() - 1], _2Dshape.vertices[0], Bc, 0);}
         }
     }
 }
 
+// Function that calls drawCurve for each curve.
 void CShapes::drawAllCurves(int resolution)
 {
     for(SShape  tShape : allShapes)
@@ -83,6 +94,7 @@ void CShapes::drawAllCurves(int resolution)
     drawCurve(activeShape, true, resolution);
 }
 
+// Function that draws a curve.
 void CShapes::drawCurve(SShape _2Dshape,bool active, int resolution)
 {
     float zoom = CPixelBuffer::instance(0)->getZoom();
@@ -100,6 +112,7 @@ void CShapes::drawCurve(SShape _2Dshape,bool active, int resolution)
     }
     if(_2Dshape.vertices.size() > 0)
     {
+        // Drawing vertices.
         for(int i = 0; i < _2Dshape.vertices.size(); i++)
         {
             CGraphLib::drawPoint2D(_2Dshape.vertices[i].x*zoom,_2Dshape.vertices[i].y*zoom, Bc, 0);
@@ -108,6 +121,7 @@ void CShapes::drawCurve(SShape _2Dshape,bool active, int resolution)
             CGraphLib::drawPoint2D(_2Dshape.vertices[i].x*zoom,_2Dshape.vertices[i].y*zoom+1, Bc, 0);
             CGraphLib::drawPoint2D(_2Dshape.vertices[i].x*zoom,_2Dshape.vertices[i].y*zoom-1, Bc, 0);
         }
+        // Calls the appropriate function to draw a Bezier curve or B-Spline.
         if(bezier)
         {
             drawBezier(_2Dshape, active, resolution);
@@ -119,6 +133,18 @@ void CShapes::drawCurve(SShape _2Dshape,bool active, int resolution)
     }
 }
 
+// Function that draws Bezier curves.
+void CShapes::drawBezier(SShape curve, bool active, int numPts)
+{
+    // Calculates the resolution (how many points will make up the curve).
+    float resolution = 1.0f / (numPts - 1);
+    // For each point it calls the overloaded function drawBezier.
+    for (float t = 0; t <= 1; t += resolution)
+        drawBezier(t, curve, active);
+}
+
+// Function that calculates where a point on the Bezier curve will be
+// based on the vertices, then draws that point.
 void CShapes::drawBezier(float t, SShape curve, bool active)
 {
     CColor curveColor = notSelected;
@@ -142,13 +168,17 @@ void CShapes::drawBezier(float t, SShape curve, bool active)
     CGraphLib::drawPoint2D(current.front().x*zoom, current.front().y*zoom, curveColor, 0);
 }
 
-void CShapes::drawBezier(SShape curve, bool active, int numPts)
+// Function that draws B-Splines.
+void CShapes::drawBSpline(SShape curve, bool active, int numPts)
 {
-    float resolution = 1.0f / (numPts - 1);
-    for (float t = 0; t <= 1; t += resolution)
-        drawBezier(t, curve, active);
+    if (curve.knots.size()) {
+        float delta = (curve.knots[curve.vertices.size()] - curve.knots[curve.k - 1]) / (numPts - 1);
+        for (float u = curve.knots[curve.k - 1]; u < curve.knots[curve.vertices.size()]; u += delta)
+            drawBSpline(u, curve, active);
+    }
 }
 
+// Function that calculates where a point on the B-Spline would be and draws it.
 void CShapes::drawBSpline(float u, SShape curve, bool active)
 {
     CColor curveColor = notSelected;
@@ -187,15 +217,7 @@ void CShapes::drawBSpline(float u, SShape curve, bool active)
     CGraphLib::drawPoint2D(current.front().x*zoom, current.front().y*zoom, curveColor, 0);
 }
 
-void CShapes::drawBSpline(SShape curve, bool active, int numPts)
-{
-    if (curve.knots.size()) {
-        float delta = (curve.knots[curve.vertices.size()] - curve.knots[curve.k - 1]) / (numPts - 1);
-        for (float u = curve.knots[curve.k - 1]; u < curve.knots[curve.vertices.size()]; u += delta)
-            drawBSpline(u, curve, active);
-    }
-}
-
+// Setter for K (B-Spline order).
 void CShapes::setK(int k)
 {
     if(k > activeShape.vertices.size()){k = activeShape.vertices.size();}
@@ -203,6 +225,7 @@ void CShapes::setK(int k)
     activeShape.k = k;
 }
 
+// Function to add a knot.
 void CShapes::addKnot(float knot)
 {
     if(activeShape.knots.empty())
@@ -228,14 +251,16 @@ void CShapes::addKnot(float knot)
     }
 }
 
+// Function to modify a knot.
 void CShapes::modKnot(int index, float knot)
 {
     activeShape.knots[index] = knot;
 }
 
-
+// Function that draws all 3D objects in the XY plane.
 void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
 {
+    // Draws lines X=0 and Y=0.
     float maxCoord = CPixelBuffer::instance(xyWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(xyWindow)->getMinCoord();
     SVertex startV;
@@ -250,19 +275,27 @@ void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
     endV.x = (maxCoord-minCoord);
     endV.y = (-minCoord);
     CGraphLib::drawLineB2D(startV, endV, axisColor, xyWindow);
+
+    // Sorting triangles by depth in the Z direction which determines the order
+    // in which the triangles will be rendered (Painter's Algorithm).
     std::vector<STriangle> sortedZDepthTriangles = sortTrianglesByDepthZ();
+    // Calculate the light at vertices.
     CGraphLib::calculateLightAtVertices(sortedZDepthTriangles, viewPoint);
     if(sortedZDepthTriangles.size() > 0)
     {
         for(auto &triangle : sortedZDepthTriangles)
         {
+            // Project each triangle in the XY plane.
             projectTriangleXY(triangle);
+            // Draw the triangle.
             CGraphLib::drawTriangle(triangle, xyWindow, "xy");
         }
     }
+    // Draw a point representing the light source.
     CGraphLib::drawLightSource("xy", xyWindow);
 }
 
+// Function that draws all 3D objects in the YZ plane.
 void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(yzWindow)->getMaxCoord();
@@ -292,6 +325,7 @@ void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint)
     CGraphLib::drawLightSource("yz", yzWindow);
 }
 
+// Function that draws all 3D objects in the ZX plane.
 void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint)
 {
     float maxCoord = CPixelBuffer::instance(zxWindow)->getMaxCoord();
@@ -321,6 +355,7 @@ void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint)
     CGraphLib::drawLightSource("zx", zxWindow);
 }
 
+// Function that changes the active shape to the previous shape in the array.
 void CShapes::getPreviousShape()
 {
     if(allShapes.size() > 0)
@@ -339,6 +374,8 @@ void CShapes::getPreviousShape()
     }
 }
 
+
+// Change the active shape to the next shape in the array.
 void CShapes::getNextShape()
 {
     if(allShapes.size() > 0)
@@ -357,6 +394,7 @@ void CShapes::getNextShape()
     }
 }
 
+// Adds the active shape to the array.
 void CShapes::addActiveToList()
 {
     if(activeShape.vertices.size() > 0)
@@ -369,11 +407,13 @@ void CShapes::addActiveToList()
     activeShape.knots.clear();
 }
 
+// Adds a vertex to the active shape.
 void CShapes::addVertexToActiveShape(SVertex vertex)
 {
     activeShape.vertices.push_back(vertex);
 }
 
+// Modifies a vertex at the given index of the active shape.
 void CShapes::modifyVertexActiveShape(SVertex vertex, int index)
 {
     if(index < activeShape.vertices.size())
@@ -382,6 +422,7 @@ void CShapes::modifyVertexActiveShape(SVertex vertex, int index)
     }
 }
 
+// Inserts a vertex between the closest two vertices.
 void CShapes::insertVertexActiveShape(SVertex vertex, int index)
 {
     if(index < activeShape.vertices.size())
@@ -391,6 +432,7 @@ void CShapes::insertVertexActiveShape(SVertex vertex, int index)
     }
 }
 
+// Deletes the closest vertex to the cursor.
 void CShapes::deleteVertexActiveShape(int index)
 {
     if(index < activeShape.vertices.size())
@@ -399,6 +441,7 @@ void CShapes::deleteVertexActiveShape(int index)
     }
 }
 
+// Undoes the last vertex added.
 void CShapes::undoVertexAdd()
 {
     if(activeShape.vertices.size() > 0)
@@ -409,6 +452,7 @@ void CShapes::undoVertexAdd()
     }
 }
 
+// Readds the last vertex removed by undoing.
 void CShapes::redoVertexAdd()
 {
     if(temp2DVertex.set)
@@ -418,11 +462,13 @@ void CShapes::redoVertexAdd()
     }
 }
 
+// Adds a triangle to the active shape.
 void CShapes::addTriangleToActiveShape(STriangle triangle)
 {
     activeShape.triangles.push_back(triangle);
 }
 
+// Moves polygons and curves.
 void CShapes::translate2D(char direction)
 {
     for(int i = 0; i < activeShape.vertices.size(); i++)
@@ -434,6 +480,7 @@ void CShapes::translate2D(char direction)
     }
 }
 
+// Rotates polygons and curves.
 void CShapes::rotate2D( float degree)
 {
     SVertex centroid = findCentroid2D();
@@ -453,6 +500,7 @@ void CShapes::rotate2D( float degree)
     }
 }
 
+// Scales polygons and curves.
 void CShapes::scale2D(float sf)
 {
     SVertex centroid = findCentroid2D();
@@ -472,6 +520,7 @@ void CShapes::scale2D(float sf)
     }
 }
 
+// Calculates the centroid of a polygon.
 SVertex CShapes::findCentroid2D()
 {
     SVertex centroid;
@@ -512,6 +561,7 @@ SVertex CShapes::findCentroid2D()
     return centroid;
 }
 
+// Clips a polygon or curve using the edge of the viewport.
 void CShapes::clip2D()
 {
     float zoom = CPixelBuffer::instance(0)->getZoom();
@@ -558,6 +608,7 @@ void CShapes::clip2D()
     }
 }
 
+// Calculates the intersection point of two lines, given the points that make up those two lines.
 SVertex CShapes::intersection(float x1,float y1,float x2,float y2,float x3,float y3,float x4, float y4)
 {
     SVertex point;
@@ -579,6 +630,7 @@ SVertex CShapes::intersection(float x1,float y1,float x2,float y2,float x3,float
     return point;
 }
 
+// Returns the centroid of the active 3D object.
 SVertex CShapes::findCentroid3D()
 {
     SVertex centroid;
@@ -598,6 +650,7 @@ SVertex CShapes::findCentroid3D()
     return centroid;
 }
 
+// Returns the centroid of the given shape.
 SVertex CShapes::findCentroid3D(SShape shape)
 {
     SVertex centroid;
@@ -617,6 +670,7 @@ SVertex CShapes::findCentroid3D(SShape shape)
     return centroid;
 }
 
+// Returns the centroid of a triangle.
 SVertex CShapes::findCentroid3D(STriangle triangle)
 {
     SVertex centroid;
@@ -635,6 +689,7 @@ SVertex CShapes::findCentroid3D(STriangle triangle)
     return centroid;
 }
 
+// Function that moves a 3D object.
 void CShapes::translate3D( float x, float y, float z)
 {
     for(int i = 0; i < activeShape.vertices.size(); i++)
@@ -645,6 +700,7 @@ void CShapes::translate3D( float x, float y, float z)
     }
 }
 
+// Function that rotates a 3D object around an arbitrary line.
 void CShapes::rotate3D( const SVertex p1, const SVertex p2, float degree)
 {
     if(activeShape.vertices.size() < 4){return;}
@@ -678,6 +734,7 @@ void CShapes::rotate3D( const SVertex p1, const SVertex p2, float degree)
     }
 }
 
+// Function that scales a 3D object.
 void CShapes::scale3D(float scaleFactorX, float scaleFactorY, float scaleFactorZ)
 {
     SVertex centroid = findCentroid3D();
@@ -695,39 +752,39 @@ void CShapes::scale3D(float scaleFactorX, float scaleFactorY, float scaleFactorZ
     }
 }
 
+// Function that calls calculateTriangleDepths for each triangle.
 void CShapes::calculateTriangleDepths()
 {
     for(auto &triangle : activeShape.triangles)
     {
-        triangle.vertices[0] = (activeShape.vertices[triangle.vertexIndices[0]]);
-        triangle.vertices[1] = (activeShape.vertices[triangle.vertexIndices[1]]);
-        triangle.vertices[2] = (activeShape.vertices[triangle.vertexIndices[2]]);
-
-        triangle.depthX = (triangle.vertices[0].x < triangle.vertices[1].x) ? ((triangle.vertices[0].x < triangle.vertices[2].x) ? triangle.vertices[0].x : triangle.vertices[2].x) : ((triangle.vertices[1].x < triangle.vertices[2].x) ? triangle.vertices[1].x : triangle.vertices[2].x);
-        triangle.depthY = (triangle.vertices[0].y < triangle.vertices[1].y) ? ((triangle.vertices[0].y < triangle.vertices[2].y) ? triangle.vertices[0].y : triangle.vertices[2].y) : ((triangle.vertices[1].y < triangle.vertices[2].y) ? triangle.vertices[1].y : triangle.vertices[2].y);
-        triangle.depthZ = (triangle.vertices[0].z < triangle.vertices[1].z) ?  ((triangle.vertices[0].z < triangle.vertices[2].z) ? triangle.vertices[0].z : triangle.vertices[2].z) : ((triangle.vertices[1].z < triangle.vertices[2].z) ? triangle.vertices[1].z : triangle.vertices[2].z);
-        triangle.depthX += findCentroid3D(triangle).x;
-        triangle.depthY += findCentroid3D(triangle).y;
-        triangle.depthZ += findCentroid3D(triangle).z;
+        calculateTriangleDepths(triangle, activeShape);
     }
     for(auto &shape : allShapes)
     {
         for(auto &triangle : shape.triangles)
         {
-            triangle.vertices[0] = (shape.vertices[triangle.vertexIndices[0]]);
-            triangle.vertices[1] = (shape.vertices[triangle.vertexIndices[1]]);
-            triangle.vertices[2] = (shape.vertices[triangle.vertexIndices[2]]);
-
-            triangle.depthX = (triangle.vertices[0].x < triangle.vertices[1].x) ? ((triangle.vertices[0].x < triangle.vertices[2].x) ? triangle.vertices[0].x : triangle.vertices[2].x) : ((triangle.vertices[1].x < triangle.vertices[2].x) ? triangle.vertices[1].x : triangle.vertices[2].x);
-            triangle.depthY = (triangle.vertices[0].y < triangle.vertices[1].y) ? ((triangle.vertices[0].y < triangle.vertices[2].y) ? triangle.vertices[0].y : triangle.vertices[2].y) : ((triangle.vertices[1].y < triangle.vertices[2].y) ? triangle.vertices[1].y : triangle.vertices[2].y);
-            triangle.depthZ = (triangle.vertices[0].z < triangle.vertices[1].z) ? ((triangle.vertices[0].z < triangle.vertices[2].z) ? triangle.vertices[0].z : triangle.vertices[2].z) : ((triangle.vertices[1].z < triangle.vertices[2].z) ? triangle.vertices[1].z : triangle.vertices[2].z);
-            triangle.depthX += findCentroid3D(triangle).x;
-            triangle.depthY += findCentroid3D(triangle).y;
-            triangle.depthZ += findCentroid3D(triangle).z;
+            calculateTriangleDepths(triangle, shape);
         }
     }
 }
 
+// Function that calcualtes the depths for each triangle in each direction.
+// Finds the coordinate furthes away from (0,0,0) for each triangle.
+void CShapes::calculateTriangleDepths(STriangle &triangle, const SShape &shape)
+{
+    triangle.vertices[0] = (shape.vertices[triangle.vertexIndices[0]]);
+    triangle.vertices[1] = (shape.vertices[triangle.vertexIndices[1]]);
+    triangle.vertices[2] = (shape.vertices[triangle.vertexIndices[2]]);
+
+    triangle.depthX = (triangle.vertices[0].x < triangle.vertices[1].x) ? ((triangle.vertices[0].x < triangle.vertices[2].x) ? triangle.vertices[0].x : triangle.vertices[2].x) : ((triangle.vertices[1].x < triangle.vertices[2].x) ? triangle.vertices[1].x : triangle.vertices[2].x);
+    triangle.depthY = (triangle.vertices[0].y < triangle.vertices[1].y) ? ((triangle.vertices[0].y < triangle.vertices[2].y) ? triangle.vertices[0].y : triangle.vertices[2].y) : ((triangle.vertices[1].y < triangle.vertices[2].y) ? triangle.vertices[1].y : triangle.vertices[2].y);
+    triangle.depthZ = (triangle.vertices[0].z < triangle.vertices[1].z) ?  ((triangle.vertices[0].z < triangle.vertices[2].z) ? triangle.vertices[0].z : triangle.vertices[2].z) : ((triangle.vertices[1].z < triangle.vertices[2].z) ? triangle.vertices[1].z : triangle.vertices[2].z);
+    triangle.depthX += findCentroid3D(triangle).x;
+    triangle.depthY += findCentroid3D(triangle).y;
+    triangle.depthZ += findCentroid3D(triangle).z;
+}
+
+// swap two vertices.
 void swap(SVertex & p1, SVertex & p2)
 {
     SVertex temp = p2;
@@ -735,6 +792,7 @@ void swap(SVertex & p1, SVertex & p2)
     p1 = temp;
 }
 
+// Comparator functions for depth in each direction.
 bool CShapes::depthSortFunctionX(STriangle t1, STriangle t2)
 {
     return(t1.depthX > t2.depthX);
@@ -748,6 +806,7 @@ bool CShapes::depthSortFunctionZ(STriangle t1, STriangle t2)
     return(t1.depthZ > t2.depthZ);
 }
 
+// Function that sorts all triangles by depth in the X direction.
 std::vector <STriangle> CShapes::sortTrianglesByDepthX()
 {
     SPoint viewPointYZ(999999, 0.5, 0.5);
@@ -780,6 +839,7 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthX()
     return sortedTriangles;
 }
 
+// Function that sorts all triangles by depth in the Y direction.
 std::vector <STriangle> CShapes::sortTrianglesByDepthY()
 {
     SPoint viewPointZX(0.5, 999999, 0.5);
@@ -812,6 +872,7 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthY()
     return sortedTriangles;
 }
 
+// Function that sorts all triangles by depth in the Z direction.
 std::vector <STriangle> CShapes::sortTrianglesByDepthZ()
 {
     SPoint viewPointXY(0.5, 0.5, 999999);
@@ -852,6 +913,7 @@ std::vector <STriangle> CShapes::sortTrianglesByDepthZ()
     return sortedTriangles;
 }
 
+// Function that calls calculateVertexNormals for each shape.
 void CShapes::calculateVertexNormals()
 {
     for(auto & tshape : allShapes)
@@ -861,6 +923,7 @@ void CShapes::calculateVertexNormals()
     calculateVertexNormals(activeShape);
 }
 
+// Calculates the vertex normals for a shape.
 void CShapes::calculateVertexNormals(SShape &shape)
 {
     SPoint center = findCentroid3D(shape);
@@ -881,6 +944,7 @@ void CShapes::calculateVertexNormals(SShape &shape)
     }
 }
 
+// Projects the triangle in the XY plane.
 void CShapes::projectTriangleXY(STriangle& triangle)
 {
     for(int i = 0; i < 3; i++)
@@ -892,6 +956,7 @@ void CShapes::projectTriangleXY(STriangle& triangle)
     if (triangle.xyProj[1].y > triangle.xyProj[2].y) swap(triangle.xyProj[1], triangle.xyProj[2]);
 }
 
+// Projects the triangle in the YZ plane.
 void CShapes::projectTriangleYZ(STriangle& triangle)
 {
     for(int i = 0; i < 3; i++)
@@ -905,6 +970,7 @@ void CShapes::projectTriangleYZ(STriangle& triangle)
     if (triangle.yzProj[1].y > triangle.yzProj[2].y) swap(triangle.yzProj[1], triangle.yzProj[2]);
 }
 
+// Projects the triangle in the ZX plane.
 void CShapes::projectTriangleZX(STriangle& triangle)
 {
     for(int i = 0; i < 3; i++)

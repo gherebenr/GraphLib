@@ -136,13 +136,6 @@ class CShapes
 public:
     static CShapes* instance();
 
-    void drawAllShapes2D(bool drawOutline, bool useDDA, bool bFill);
-    void drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool bFill, bool active);
-
-    void drawAllShapes3DXY(int xyWindow, SPoint viewPoint);
-    void drawAllShapes3DYZ(int yzWindow, SPoint viewPoint);
-    void drawAllShapes3DZX(int zxWindow, SPoint viewPoint);
-
     void getNextShape();
     void getPreviousShape();
 
@@ -156,13 +149,20 @@ public:
     void undoVertexAdd();
     void redoVertexAdd();
 
+    std::vector<SShape> getAllShapes() const {return allShapes;}
+    SShape getActiveShape() const {return activeShape;}
+
+    void drawAllShapes2D(bool drawOutline, bool useDDA, bool bFill);
+    void drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool bFill, bool active);
+
+    void drawAllShapes3DXY(int xyWindow, SPoint viewPoint);
+    void drawAllShapes3DYZ(int yzWindow, SPoint viewPoint);
+    void drawAllShapes3DZX(int zxWindow, SPoint viewPoint);
+
     void translate2D(char direction);
     void rotate2D(float degree);
     void scale2D(float sf);
     void clip2D();
-
-    std::vector<SShape> getAllShapes() const {return allShapes;}
-    SShape getActiveShape() const {return activeShape;}
 
     void translate3D(float x, float y, float z);
     void rotate3D(const SVertex p1, const SVertex p2, float degree);
@@ -175,6 +175,7 @@ public:
     static SVertex findCentroid3D(STriangle triangle);
 
     void calculateTriangleDepths();
+    void calculateTriangleDepths(STriangle &triangle, const SShape &shape);
     std::vector <STriangle> sortTrianglesByDepthX();
     std::vector <STriangle> sortTrianglesByDepthY();
     std::vector <STriangle> sortTrianglesByDepthZ();
