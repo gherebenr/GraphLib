@@ -11,7 +11,7 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
     {
         if(!curveMode)
         {
-            std::ifstream inputFile("2DData.txt");
+            std::ifstream inputFile("2DPolygonData.txt");
             if(inputFile.is_open())
             {
                 SVertex inputVertex;
@@ -21,29 +21,24 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                     // Get the number of shapes.
                     int numShapes = std::stoi(line);
                     int numVertices = 0;
-                    std::cout << line << std::endl << std::endl;
                     // For each shape.
                     for(int j = 0; j < numShapes; j++)
                     {
                         inputFile >> line;
                         // Get the number of vertices.
                         numVertices = std::stoi(line);
-                        std::cout << line << std::endl;
                         // For each vertex.
                         for(int i = 0; i < numVertices; i++)
                         {
                             inputFile >> line;
-                            std::cout << line << " ";
                             // Get the x value.
                             inputVertex.x = std::stof(line);
                             inputFile >> line;
-                            std::cout << line << std::endl;
                             // Get the y value.
                             inputVertex.y = std::stof(line);
                             // Add the vertex to a shape.
                             CShapes::instance()->addVertexToActiveShape(inputVertex);
                         }
-                        std::cout << std::endl;
                         if(j < numShapes - 1)
                         {
                             // Add the shape to an array once all vertices have been added.
@@ -57,7 +52,7 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
         }
         else
         {
-            std::ifstream inputFile("curveData.txt");
+            std::ifstream inputFile("2DCurveData.txt");
             if(inputFile.is_open())
             {
                 SVertex inputVertex;
@@ -68,21 +63,17 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                     int numShapes = std::stoi(line);
                     int numVertices = 0;
                     int k = 0;
-                    std::cout << line << std::endl << std::endl;
                     for(int j = 0; j < numShapes; j++)
                     {
                         inputFile >> line;
                         // Get the number of vertices for the shape.
                         numVertices = std::stoi(line);
-                        std::cout << line << std::endl;
                         for(int i = 0; i < numVertices; i++)
                         {
                             inputFile >> line;
-                            std::cout << line << " ";
                             // Get the x value.
                             inputVertex.x = std::stof(line);
                             inputFile >> line;
-                            std::cout << line << std::endl;
                             // Get the y value.
                             inputVertex.y = std::stof(line);
                             // Add the vertex to the shape.
@@ -90,7 +81,6 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                         }
                         inputFile >> line;
                         k = std::stoi(line);
-                        std::cout << line << std::endl;
                         // If the next line has a number bigger than 0,
                         // then the curve is a B-Spline.
                         if(k > 0)
@@ -103,17 +93,14 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                             for(int m = 0; m < k + numVertices; m++)
                             {
                                 inputFile >> line;
-                                std::cout << line << " ";
                                 CShapes::instance()->modKnot(m, std::stof(line));
                             }
-                            std::cout << std::endl;
                         }
                         // Otherwise the curve is a Bezier curve.
                         else
                         {
                             CShapes::instance()->setBezier(true);
                         }
-                        std::cout << std::endl;
                         if(j < numShapes - 1)
                         {
                             // Add the curve to an array.
@@ -141,7 +128,6 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                 int numVertices = 0;
                 int numEdges = 0;
                 int numTriangles = 0;
-                std::cout << line << std::endl << std::endl;
                 for(int j = 0; j < numShapes; j++)
                 {
                     // Set a random color for the object.
@@ -153,46 +139,37 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
 
                     inputFile >> line;
                     numVertices = std::stoi(line);
-                    std::cout << line << std::endl;
                     // Get values for each vertex and add the vertex to the shape.
                     for(int i = 0; i < numVertices; i++)
                     {
                         inputFile >> line;
-                        std::cout << line << " ";
                         inputVertex.x = (std::stof(line));
                         inputFile >> line;
-                        std::cout << line << " ";
                         inputVertex.y = (std::stof(line));
                         inputFile >> line;
-                        std::cout << line << std::endl;
                         inputVertex.z = (std::stof(line));
                         CShapes::instance()->addVertexToActiveShape(inputVertex);
                     }
                     inputFile >> line;
                     // Get the number of triangles.
                     numTriangles = std::stoi(line);
-                    std::cout << line << std::endl;
                     // Each triangle has three indices, which correspond to a vertex
                     // that makes up that triangle. Each triangle that makes up the 
                     // 3D objects keeps a vector of indices.
                     for(int i = 0; i < numTriangles; i++)
                     {
                         inputFile >> line;
-                        std::cout << line << " ";
                         inputTriangle.vertexIndices[0] = std::stof(line);
                         inputTriangle.vertices[0] = (CShapes::instance()->getActiveShape().vertices[inputTriangle.vertexIndices[0]]);
                         inputFile >> line;
-                        std::cout << line << " ";
                         inputTriangle.vertexIndices[1] = std::stof(line);
                         inputTriangle.vertices[1] = (CShapes::instance()->getActiveShape().vertices[inputTriangle.vertexIndices[1]]);
                         inputFile >> line;
-                        std::cout << line << std::endl;
                         inputTriangle.vertexIndices[2] = std::stof(line);
                         inputTriangle.vertices[2] = (CShapes::instance()->getActiveShape().vertices[inputTriangle.vertexIndices[2]]);
                         inputTriangle.defaultColor = color;
                         CShapes::instance()->addTriangleToActiveShape(inputTriangle);
                     }
-                    std::cout << std::endl;
                     if(j < numShapes - 1)
                     {
                         // Add the object to an array.
@@ -215,7 +192,7 @@ void CFileIO::saveFile(bool _3Dmode, bool curveMode)
     {
         if(!curveMode)
         {
-            std::ofstream outputFile ("2DData.txt");
+            std::ofstream outputFile ("2DPolygonData.txt");
             if(outputFile.is_open())
             {
                 // Write the number of shapes to file.
@@ -240,7 +217,7 @@ void CFileIO::saveFile(bool _3Dmode, bool curveMode)
         }
         else
         {
-            std::ofstream outputFile ("curveData.txt");
+            std::ofstream outputFile ("2DCurveData.txt");
             if(outputFile.is_open())
             {
                 // Write the number of curves.

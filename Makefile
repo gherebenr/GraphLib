@@ -15,4 +15,4 @@ FileIO.o: FileIO.cpp FileIO.h Shapes.h
 Main.o: Main.cpp PixelBuffer.h Color.h GraphLib.h Shapes.h FileIO.h
 	g++ -c $<
 clean: 
-	rm $(TARGET) $(OBJECTS)
+	rm $(TARGET) $(OBJECTS) 

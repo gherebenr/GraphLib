@@ -101,7 +101,20 @@ int main(int argc, char *argv[])
         std::cin >> userInput;
         if(userInput == "y" || userInput == "Y")
         {
+            std::cout << "Terminal mode selected." << std::endl;
             terminalMode = true;
+        }
+        else 
+        {
+            std::cout <<
+            "\nt         - translate mode; use arrow keys to move the active object\n"<<
+            "r         - rotate mode; use the arrow keys to rotate the active object\n"<<
+            "s         - scale mode; use arrow keys to scale the object; hold SHIFT to only scale in one direction\n"<<
+            "w         - toggle wireframe mode\n"<<
+            "h         - toggle half-tone mode\n"<<
+            "z         - zoom out to fit all objects\n"<<
+            "ALT+arrow - change active object\n"<<
+            "SHIFT+s   - save changes to file\n" << std::endl;
         }
     }
     else
@@ -113,7 +126,52 @@ int main(int argc, char *argv[])
         std::cin >> userInput;
         if(userInput == "y" || userInput == "Y")
         {
+            std::cout << "Curve mode selected." << std::endl << std::endl;
+            std::cout <<
+            "t         - translate mode; use arrow keys to move the active curve\n"<<
+            "r         - rotate mode; use the arrow keys to rotate the active curve\n"<<
+            "s         - scale mode; use arrow keys to scale the curve\n"<<
+            ".         - increase k (b-spline order)\n"<<
+            ",         - decrease k\n"<<
+            "]         - increase resolution\n"<<
+            "[         - decrease resolution\n"<<
+            "/         - toggle between bezier and b-spline\n"<<
+            "k         - edit knots for b-spline (prompts in terminal)\n"<<
+            "v         - viewport move mode; use arrow keys to move the viewport\n"<<
+            "b         - viewport scale mode; use arrow keys to scale the viewport\n"<<
+            "LMB       - add a vertex to the active curve\n"<<
+            "u         - undo the last vertex added\n"<<
+            "SHIFT+u   - redo the last vertex removed by undoing\n"<<
+            "SHIFT+LMB - drag mouse to move the closest vertex to the cursor\n"<<
+            "CTRL+LMB  - insert a vertex between the closest two vertices\n"<<
+            "CTRL+RMB  - delete the vertex closest to the cursor\n"<<
+            "RMB       - can start making a new curve\n"<<
+            "ALT+arrow - change active curve\n"<<
+            "SHIFT+s   - save changes to file\n" << std::endl;
             curveEditor = true;
+        }
+        else
+        {
+            std::cout << "Polygon mode selected." << std::endl << std::endl;
+            std::cout <<
+            "l         - toggle between DDA(blue) and Bresenham(green) line drawing algorithms\n"<<
+            "f         - toggle whether to fill in polygons or not\n"<<
+            "o         - toggle whether to draw the outline or not\n"<<
+            "t         - translate mode; use arrow keys to move the active polygon\n"<<
+            "r         - rotate mode; use the arrow keys to rotate the active polygon\n"<<
+            "s         - scale mode; use arrow keys to scale the polygon\n"<<
+            "c         - clip the polygon if it's partially outside the viewport\n"<<
+            "v         - viewport move mode; use arrow keys to move the viewport\n"<<
+            "b         - viewport scale mode; use arrow keys to scale the viewport\n"<<
+            "LMB       - add a vertex to the active shape\n"<<
+            "u         - undo the last vertex added\n"<<
+            "SHIFT+u   - redo the last vertex removed by undoing\n"<<
+            "SHIFT+LMB - drag mouse to move the closest vertex to the cursor\n"<<
+            "CTRL+LMB  - insert a vertex between the closest two vertices\n"<<
+            "CTRL+RMB  - delete the vertex closest to the cursor\n"<<
+            "RMB       - can start making a new polygon\n"<<
+            "ALT+arrow - change active polygon\n"<<
+            "SHIFT+s   - save changes to file\n" << std::endl;
         }
     }
     

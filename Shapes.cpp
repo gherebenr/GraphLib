@@ -982,4 +982,4 @@ void CShapes::projectTriangleZX(STriangle& triangle)
     if (triangle.zxProj[0].y > triangle.zxProj[1].y) swap(triangle.zxProj[0], triangle.zxProj[1]);
     if (triangle.zxProj[0].y > triangle.zxProj[2].y) swap(triangle.zxProj[0], triangle.zxProj[2]);
     if (triangle.zxProj[1].y > triangle.zxProj[2].y) swap(triangle.zxProj[1], triangle.zxProj[2]);
-}
+} 

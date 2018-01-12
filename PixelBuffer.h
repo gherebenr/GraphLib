@@ -66,4 +66,4 @@ private:
    // Name of the plane displayed in a window.
    std::string viewportPlane = "";
 };
-#endif
+#endif 

@@ -194,4 +194,4 @@ void CPixelBuffer::changeZoom()
     minCoord = min;
     maxCoord = max;
     zoomMult = sizeH * (1 / (max - min));
-}
+} 
