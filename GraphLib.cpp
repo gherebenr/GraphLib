@@ -352,7 +352,7 @@ void CGraphLib::drawPoint3D(float x, float y, CColor color, int pixelBufferIndex
     }
 }
 
-void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool active)
+void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool active, bool wire)
 {
     float minCoord = CPixelBuffer::instance(window)->getMinCoord();
     float zoom = CPixelBuffer::instance(window)->getZoom();
@@ -395,16 +395,16 @@ void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool 
             {
                 if(active){
                     drawPoint3D(x * 3 + 1, y * 3 + 1, activeColor, window);
-                } else {
-                    // drawPoint3D(x * 3 + 1, y * 3 + 1, c, window);
+                } else if(wire){
+                    drawPoint3D(x * 3 + 1, y * 3 + 1, c, window);
                 }
             }
             else
             {
                 if(active){
                     drawPoint3D(x, y, activeColor, window);
-                } else {
-                    // drawPoint3D(x, y, c, window);
+                } else if(wire){
+                    drawPoint3D(x, y, c, window);
                 }
                 
             }
@@ -439,7 +439,7 @@ void CGraphLib::scanLineInterp(int startX, int endX, int y, CColor startC, CColo
     }
 }
 
-void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
+void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane, bool wire)
 {
     float minCoord = CPixelBuffer::instance(window)->getMinCoord();
     float zoom = CPixelBuffer::instance(window)->getZoom();
@@ -460,67 +460,70 @@ void CGraphLib::drawTriangle(STriangle& triangle, int window, std::string plane)
         }
     }
 
-    float startX, endX;
-    float startXIncr, endXIncr;
-    CColor startC, endC;
-    CColor startCIncr, endCIncr;
-    int startY, endY;
-    
-    if(halfTone)
+    if(!wire)
     {
-        startX = round((tVert[0].x-minCoord) * zoom / 3);
-        endX = round((tVert[0].x-minCoord) * zoom / 3);
-        startY = round((tVert[0].y-minCoord) * zoom / 3);
-        endY = round((tVert[1].y-minCoord) * zoom / 3);
-        startXIncr = float(round((tVert[1].x-minCoord) * zoom / 3) - round((tVert[0].x-minCoord) * zoom / 3)) / float(round((tVert[1].y-minCoord) * zoom / 3) - round((tVert[0].y-minCoord) * zoom / 3));
-        endXIncr = float(round((tVert[2].x-minCoord) * zoom / 3) - round((tVert[0].x-minCoord) * zoom / 3)) / float(round((tVert[2].y-minCoord) * zoom / 3) - round((tVert[0].y-minCoord) * zoom / 3));
-    }
-    else
-    {
-        startX = round((tVert[0].x-minCoord) * zoom);
-        endX = round((tVert[0].x-minCoord) * zoom);
-        startY = round((tVert[0].y-minCoord) * zoom);
-        endY = round((tVert[1].y-minCoord) * zoom);
-        startXIncr = float(round((tVert[1].x-minCoord) * zoom) - round((tVert[0].x-minCoord) * zoom)) / float(round((tVert[1].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
-        endXIncr = float(round((tVert[2].x-minCoord) * zoom) - round((tVert[0].x-minCoord) * zoom)) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
-    }
-    startC = tVert[0].vColor;
-    endC = tVert[0].vColor;
-    startCIncr = (tVert[1].vColor - tVert[0].vColor) / float(round((tVert[1].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
-    endCIncr = (tVert[2].vColor - tVert[0].vColor) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
-    for (int k = startY; k < endY; k++) 
-    {
-        scanLineInterp(startX, endX, k, startC, endC, window);
-        startX += startXIncr;
-        endX += endXIncr;
-        startC += startCIncr;
-        endC += endCIncr;
+        float startX, endX;
+        float startXIncr, endXIncr;
+        CColor startC, endC;
+        CColor startCIncr, endCIncr;
+        int startY, endY;
+        
+        if(halfTone)
+        {
+            startX = round((tVert[0].x-minCoord) * zoom / 3);
+            endX = round((tVert[0].x-minCoord) * zoom / 3);
+            startY = round((tVert[0].y-minCoord) * zoom / 3);
+            endY = round((tVert[1].y-minCoord) * zoom / 3);
+            startXIncr = float(round((tVert[1].x-minCoord) * zoom / 3) - round((tVert[0].x-minCoord) * zoom / 3)) / float(round((tVert[1].y-minCoord) * zoom / 3) - round((tVert[0].y-minCoord) * zoom / 3));
+            endXIncr = float(round((tVert[2].x-minCoord) * zoom / 3) - round((tVert[0].x-minCoord) * zoom / 3)) / float(round((tVert[2].y-minCoord) * zoom / 3) - round((tVert[0].y-minCoord) * zoom / 3));
+        }
+        else
+        {
+            startX = round((tVert[0].x-minCoord) * zoom);
+            endX = round((tVert[0].x-minCoord) * zoom);
+            startY = round((tVert[0].y-minCoord) * zoom);
+            endY = round((tVert[1].y-minCoord) * zoom);
+            startXIncr = float(round((tVert[1].x-minCoord) * zoom) - round((tVert[0].x-minCoord) * zoom)) / float(round((tVert[1].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
+            endXIncr = float(round((tVert[2].x-minCoord) * zoom) - round((tVert[0].x-minCoord) * zoom)) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
+        }
+        startC = tVert[0].vColor;
+        endC = tVert[0].vColor;
+        startCIncr = (tVert[1].vColor - tVert[0].vColor) / float(round((tVert[1].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
+        endCIncr = (tVert[2].vColor - tVert[0].vColor) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[0].y-minCoord) * zoom));
+        for (int k = startY; k < endY; k++) 
+        {
+            scanLineInterp(startX, endX, k, startC, endC, window);
+            startX += startXIncr;
+            endX += endXIncr;
+            startC += startCIncr;
+            endC += endCIncr;
+        }
+
+        if(halfTone)
+        {
+            startY = round((tVert[1].y-minCoord) * zoom / 3);
+            endY = round((tVert[2].y-minCoord) * zoom / 3);
+            startX = round((tVert[1].x-minCoord) * zoom / 3);
+            startXIncr = float(round((tVert[2].x-minCoord) * zoom / 3) - round((tVert[1].x-minCoord) * zoom / 3)) / float(round((tVert[2].y-minCoord) * zoom / 3) - round((tVert[1].y-minCoord) * zoom / 3));
+        }
+        else
+        {
+            startY = round((tVert[1].y-minCoord) * zoom);
+            endY = round((tVert[2].y-minCoord) * zoom);
+            startX = round((tVert[1].x-minCoord) * zoom);
+            startXIncr = float(round((tVert[2].x-minCoord) * zoom) - round((tVert[1].x-minCoord) * zoom)) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[1].y-minCoord) * zoom));
+        }
+        startC = tVert[1].vColor;
+        startCIncr = (tVert[2].vColor - tVert[1].vColor) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[1].y-minCoord) * zoom));
+        for (int k = startY; k < endY; k++) 
+        {
+            scanLineInterp(startX, endX, k, startC, endC, window);
+            startX += startXIncr;
+            endX += endXIncr;
+            startC += startCIncr;
+            endC += endCIncr;
+        }
     }
 
-    if(halfTone)
-    {
-        startY = round((tVert[1].y-minCoord) * zoom / 3);
-        endY = round((tVert[2].y-minCoord) * zoom / 3);
-        startX = round((tVert[1].x-minCoord) * zoom / 3);
-        startXIncr = float(round((tVert[2].x-minCoord) * zoom / 3) - round((tVert[1].x-minCoord) * zoom / 3)) / float(round((tVert[2].y-minCoord) * zoom / 3) - round((tVert[1].y-minCoord) * zoom / 3));
-    }
-    else
-    {
-        startY = round((tVert[1].y-minCoord) * zoom);
-        endY = round((tVert[2].y-minCoord) * zoom);
-        startX = round((tVert[1].x-minCoord) * zoom);
-        startXIncr = float(round((tVert[2].x-minCoord) * zoom) - round((tVert[1].x-minCoord) * zoom)) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[1].y-minCoord) * zoom));
-    }
-    startC = tVert[1].vColor;
-    startCIncr = (tVert[2].vColor - tVert[1].vColor) / float(round((tVert[2].y-minCoord) * zoom) - round((tVert[1].y-minCoord) * zoom));
-    for (int k = startY; k < endY; k++) 
-    {
-        scanLineInterp(startX, endX, k, startC, endC, window);
-        startX += startXIncr;
-        endX += endXIncr;
-        startC += startCIncr;
-        endC += endCIncr;
-    }
-
-    edgeInterp(tVert, window, plane, triangle.active);
+    edgeInterp(tVert, window, plane, triangle.active, wire);
 }

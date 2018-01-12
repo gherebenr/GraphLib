@@ -155,9 +155,9 @@ public:
     void drawAllShapes2D(bool drawOutline, bool useDDA, bool bFill);
     void drawShape2D(SShape _2Dshape, bool drawOutline, bool useDDA, bool bFill, bool active);
 
-    void drawAllShapes3DXY(int xyWindow, SPoint viewPoint);
-    void drawAllShapes3DYZ(int yzWindow, SPoint viewPoint);
-    void drawAllShapes3DZX(int zxWindow, SPoint viewPoint);
+    void drawAllShapes3DXY(int xyWindow, SPoint viewPoint, bool wire);
+    void drawAllShapes3DYZ(int yzWindow, SPoint viewPoint, bool wire);
+    void drawAllShapes3DZX(int zxWindow, SPoint viewPoint, bool wire);
 
     void translate2D(char direction);
     void rotate2D(float degree);

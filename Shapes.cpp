@@ -258,7 +258,7 @@ void CShapes::modKnot(int index, float knot)
 }
 
 // Function that draws all 3D objects in the XY plane.
-void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
+void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint, bool wire)
 {
     // Draws lines X=0 and Y=0.
     float maxCoord = CPixelBuffer::instance(xyWindow)->getMaxCoord();
@@ -288,7 +288,7 @@ void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
             // Project each triangle in the XY plane.
             projectTriangleXY(triangle);
             // Draw the triangle.
-            CGraphLib::drawTriangle(triangle, xyWindow, "xy");
+            CGraphLib::drawTriangle(triangle, xyWindow, "xy", wire);
         }
     }
     // Draw a point representing the light source.
@@ -296,7 +296,7 @@ void CShapes::drawAllShapes3DXY(int xyWindow, SPoint viewPoint)
 }
 
 // Function that draws all 3D objects in the YZ plane.
-void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint)
+void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint, bool wire)
 {
     float maxCoord = CPixelBuffer::instance(yzWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(yzWindow)->getMinCoord();
@@ -319,14 +319,14 @@ void CShapes::drawAllShapes3DYZ(int yzWindow, SPoint viewPoint)
         for(auto &triangle : sortedXDepthTriangles)
         {
             projectTriangleYZ(triangle);
-            CGraphLib::drawTriangle(triangle, yzWindow, "yz");
+            CGraphLib::drawTriangle(triangle, yzWindow, "yz", wire);
         }
     }
     CGraphLib::drawLightSource("yz", yzWindow);
 }
 
 // Function that draws all 3D objects in the ZX plane.
-void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint)
+void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint, bool wire)
 {
     float maxCoord = CPixelBuffer::instance(zxWindow)->getMaxCoord();
     float minCoord = CPixelBuffer::instance(zxWindow)->getMinCoord();
@@ -349,7 +349,7 @@ void CShapes::drawAllShapes3DZX(int zxWindow, SPoint viewPoint)
         for(auto &triangle : sortedYDepthTriangles)
         {
             projectTriangleZX(triangle);
-            CGraphLib::drawTriangle(triangle, zxWindow, "zx");
+            CGraphLib::drawTriangle(triangle, zxWindow, "zx", wire);
         }
     }
     CGraphLib::drawLightSource("zx", zxWindow);
