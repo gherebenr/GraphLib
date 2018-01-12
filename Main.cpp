@@ -777,32 +777,14 @@ void consoleInput()
             y2 = stof(userInput);
             std::cout << "Enter Z value for p2:" ;
             std::cin >> userInput;
-            z2 = stof(userInput);
-
-            // float maxCoord = CPixelBuffer::instance(xyWindow)->getMaxCoord();
-            // float minCoord = CPixelBuffer::instance(xyWindow)->getMinCoord();
-            // SVertex startV;
-            // SVertex endV;
-            // startV.x = (-minCoord+0.3);
-            // startV.y = (minCoord);
-            // endV.x = (-minCoord);
-            // endV.y = (maxCoord-minCoord);
-            // CGraphLib::drawLineB2D(startV, endV, CColor(1,0,0), xyWindow);
-
-
-            SVertex start;
+            z2 = stof(userInput);SVertex start;
             start.x = x;
             start.y = y;
             start.z = z;
-            
             SVertex end;
             end.x = x2;
             end.y = y2;
             end.z = z2;
-            // CGraphLib::drawLineB2D(start, end, CColor(1,0,0), xyWindow);
-            // glDrawPixels(winSizeH, winSizeV, GL_RGB, GL_FLOAT, CPixelBuffer::instance(xyWindow)->getPixelBuffer());
-            // glutSwapBuffers();
-            // refreshAllWindows();
             std::cout << "Enter degrees:" ;
             std::cin >> userInput;
             degree = stof(userInput);

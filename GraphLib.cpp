@@ -6,7 +6,7 @@
 #include <cmath>
 #include <algorithm>
 
-float CGraphLib::iA = 0.25;
+float CGraphLib::iA = 0.16;
 float CGraphLib::iL = 1;
 float CGraphLib::K = 1;
 float CGraphLib::phongConst = 3;
@@ -303,6 +303,7 @@ void CGraphLib::calculateLightAtVertices(std::vector<STriangle>& allTriangles, S
         calculateTriangleLight(ttriangle, viewPoint);
     }
     CColor maxCol = maxColor(allTriangles);
+    // CColor maxCol = CColor(1,1,1);
     for(auto & ttriangle : allTriangles)
     {
         for(int i = 0; i < 3; i++)
@@ -392,14 +393,18 @@ void CGraphLib::edgeInterp(SVertex tVert[], int window, std::string plane, bool 
         {
             if(halfTone)
             {
-                drawPoint3D(x * 3 + 1, y * 3 + 1, c, window);
+                if(active){
+                    drawPoint3D(x * 3 + 1, y * 3 + 1, activeColor, window);
+                } else {
+                    // drawPoint3D(x * 3 + 1, y * 3 + 1, c, window);
+                }
             }
             else
             {
                 if(active){
                     drawPoint3D(x, y, activeColor, window);
                 } else {
-                    drawPoint3D(x, y, c, window);
+                    // drawPoint3D(x, y, c, window);
                 }
                 
             }
