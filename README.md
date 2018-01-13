@@ -8,6 +8,6 @@ Small graphics library that allows a user to draw polygons, curves and display 3
 4) Follow the instructions displayed in the terminal.
 
 #### Prerequisites
-You need to install FreeGLUT.
+You need to install FreeGLUT. I used GCC 7.2.1 to compile on Linux.
 
-#### NOTE: I only ever compiled and ran this program on Linux, so I don't know if it will work on Windows.
+#### To get it working in Windows, go to the FreeGLUT website (http://freeglut.sourceforge.net/) and download Martin Payne's Windows binaries. Then follow the instructions in the Readme.txt file to get it to compile in Visual Studio. Beware that the performance is much worse than on Linux.

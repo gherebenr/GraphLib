@@ -130,8 +130,6 @@ void CFileIO::loadFile(bool _3Dmode, bool curveMode)
                 int numTriangles = 0;
                 for(int j = 0; j < numShapes; j++)
                 {
-                    // Set a random color for the object.
-                    srand(time(NULL) * rand() * time(NULL));
                     float r = ((rand() * time(NULL)) % 1000)/1000.f;
                     float g = ((rand() * time(NULL)) % 1000)/1000.f;
                     float b = ((rand() * time(NULL)) % 1000)/1000.f;

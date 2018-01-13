@@ -370,7 +370,7 @@ void CShapes::getPreviousShape()
         activeShape.knots.clear();
         temp2DVertex.set = false;
         activeShape = allShapes[allShapes.size()-1];
-        allShapes.erase(allShapes.end());
+        allShapes.pop_back();
     }
 }
 

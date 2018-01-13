@@ -107,9 +107,11 @@ int main(int argc, char *argv[])
         else 
         {
             std::cout <<
-            "\nt         - translate mode; use arrow keys to move the active object\n"<<
+            "\nTranslation, rotation and scaling depend on the currently focused window.\n"<<
+            "t         - translate mode; use arrow keys to move the active object\n"<<
             "r         - rotate mode; use the arrow keys to rotate the active object\n"<<
-            "s         - scale mode; use arrow keys to scale the object; hold SHIFT to only scale in one direction\n"<<
+            "s         - scale mode; use arrow keys to scale the object;\n"<<
+            "            hold SHIFT to only scale in one direction\n"<<
             "w         - toggle wireframe mode\n"<<
             "h         - toggle half-tone mode\n"<<
             "z         - zoom out to fit all objects\n"<<
